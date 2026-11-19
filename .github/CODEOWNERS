@@ -1,0 +1,6 @@
+# Harness files change only via PR review by the owner (see docs/ai/team-agreement.md).
+/AGENTS.md            @JKord
+/.claude/             @JKord
+/docs/ai/             @JKord
+/db/migrations/       @JKord
+/.github/CODEOWNERS   @JKord

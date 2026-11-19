@@ -1,0 +1,29 @@
+### IDEA ###
+.idea/
+out/
+*.iml
+classes
+
+### OSX ###
+*.DS_Store
+._*
+
+### Windows ###
+Thumbs.db
+Desktop.ini
+
+### Linux ###
+*~
+
+# Default ignored files
+/shelf/
+/workspace.xml
+# Markdown personal settings
+/markdown.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Ignored default folder with query files
+/queries/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
