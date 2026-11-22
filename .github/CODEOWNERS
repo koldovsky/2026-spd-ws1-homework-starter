@@ -1,0 +1,18 @@
+# owner: @AlexSylka · why: harness files change agent behaviour for everyone, so every change needs an owner's review · review-by: 2027-02-22
+# Last matching pattern wins. Keep this list in sync with section 3 of docs/ai/team-agreement.md.
+
+# Agent harness: instructions, rules, skills, hooks, permissions, team docs
+/AGENTS.md          @AlexSylka
+/.claude/           @AlexSylka
+/docs/ai/           @AlexSylka
+# agentRules: false here keeps `next dev` from rewriting AGENTS.md
+/next.config.ts     @AlexSylka
+
+# CODEOWNERS itself, PR and issue templates
+/.github/           @AlexSylka
+
+# Committed migrations are protected by the PreToolUse hook; new ones are L2 (tech lead reviews every line)
+/db/migrations/     @AlexSylka
+
+# Handoff notes are per-branch working notes, deleted before merge: no owner review
+/docs/ai/handoffs/
