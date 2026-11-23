@@ -13,6 +13,3 @@
 
 # Committed migrations are protected by the PreToolUse hook; new ones are L2 (tech lead reviews every line)
 /db/migrations/     @AlexSylka
-
-# Handoff notes are per-branch working notes, deleted before merge: no owner review
-/docs/ai/handoffs/

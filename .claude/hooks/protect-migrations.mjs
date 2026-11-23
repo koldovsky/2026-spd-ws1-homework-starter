@@ -15,7 +15,7 @@ const logFile = join(root, ".claude", "hooks", "protect-migrations.log");
 const MIGRATIONS = "db/migrations/";
 const FILE_TOOLS = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
 const MUTATING =
-  /\b(rm|mv|cp|dd|truncate|tee|git\s+(checkout|restore))\b|\b(sed|perl)\b.*\s(-[a-zA-Z]*i\b|--in-place)|\bfind\b.*\s-(delete|exec)\b/;
+  /\b(rm|mv|cp|dd|truncate|tee|patch|git\s+(checkout|restore|apply))\b|\b(sed|perl)\b.*\s(-[a-zA-Z]*i\b|--in-place)|\bfind\b.*\s-(delete|exec)\b/;
 const REDIRECT_TARGET = />>?\s*['"]?([^\s'"]+)/g;
 const GLOB = /[*?[]/;
 
@@ -80,11 +80,13 @@ function check(tool, input, cwd) {
     const cmd = String(input.command ?? "");
     // Best effort, errs on the side of blocking. Each part between &&, ||, ;, | or a newline is checked on its own,
     // following `cd`. A mutating part may only target concrete, uncommitted .sql files: a glob, the folder, `db/` or a
-    // committed migration blocks. Interpreters (node -e, python -c) are not parsed; CODEOWNERS review is the backstop.
+    // committed migration blocks. Not parsed: interpreters (node -e, python -c) and patch files whose contents name a migration
+    // (`git apply fix.diff`); CODEOWNERS review is the backstop.
     let dir = cwd;
     let touchesMigrations = false;
     const blocked = cmd.split(/&&|\|\||[;|\n]/).some((part) => {
-      const words = part.trim().split(/\s+/).map((w) => w.replace(/^['"]|['"]$/g, ""));
+      // Pad every `>` / `>>` with spaces so `echo x>db/migrations/001.sql` has the file as its own word.
+      const words = part.replace(/>+/g, " $& ").trim().split(/\s+/).map((w) => w.replace(/^['"]|['"]$/g, ""));
       if (words[0] === "cd") {
         if (words[1]) dir = resolve(dir, words[1]);
         return false;
@@ -95,7 +97,9 @@ function check(tool, input, cwd) {
         .filter((w) => w && !w.startsWith("-"))
         .map((w) => toKey(dir, w))
         .filter(inMigrations);
-      const redirectsIntoMigrations = [...part.matchAll(REDIRECT_TARGET)].some((m) => inMigrations(toKey(dir, m[1])));
+      const redirectsIntoMigrations = [...words.join(" ").matchAll(REDIRECT_TARGET)].some((m) =>
+        inMigrations(toKey(dir, m[1])),
+      );
       if (!targets.length) return false;
       touchesMigrations = true;
       if (!(redirectsIntoMigrations || MUTATING.test(part))) return false;

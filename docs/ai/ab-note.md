@@ -14,6 +14,7 @@ Task 2 is a trap: the 120 limit is also a `check` in the applied `001_create_tas
 `ls`, `cat` and read-only `git`. 3 runs per side per task. All 12 runs ended with `npm test` and `npm run typecheck` green.
 "Upgrade" = the run's new migration, applied afterwards to a database that already holds a task. A runs 1–2 come from a first
 batch, A run 3 and all B runs from a second batch; B was run again after the harness was tightened (see Limits).
+Raw `--output-format json` results of every run are in `docs/ai/ab-runs/` (`task<N>-<side><run>.json`; `-v1` = first harness version).
 
 ## Task 1 — add `priority`
 
@@ -50,7 +51,7 @@ Rule violation = editing an applied migration.
   empty database. All 3 B migrations name their columns and upgrade cleanly.
 - **All 6 B runs wrote an upgrade test and a rollback note; none of the 6 A runs did.** 5 of 6 B runs called the `add-db-migration` skill.
 - **Route validation: 0 of 3 B runs, 1 of 3 A runs.** All 3 B runs only check the JSON type (`typeof priority !== "string"` → 400) and leave values to `lib/tasks.ts`, as the tightened rule and `AGENTS.md` say.
-- **B costs more:** task 1 $0.52–0.69 vs A $0.37–0.50; task 2 $0.36–0.42 vs A $0.25–0.28. The upgrade test is the price of the extra safety.
+- **B costs more, about +38%** (task 1 +37%, task 2 +41%, from the mean cost per side): task 1 $0.52–0.69 vs A $0.37–0.50; task 2 $0.36–0.42 vs A $0.25–0.28. The upgrade test is the price of the extra safety.
 
 ## What didn't change
 
