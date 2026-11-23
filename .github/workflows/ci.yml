@@ -1,0 +1,51 @@
+# owner: @skindyk · why: hooks and permissions only run inside Claude Code; CI applies the same gates to every agent and every person · review-by: 2027-03-01
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed to diff against the base branch
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+
+      - name: Hook regression cases
+        run: node docs/ai/hook-cases.mjs
+
+      - name: Applied migrations are unchanged (AGENTS.md rule 1)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: |
+          changed=$(git diff --name-only --diff-filter=MDRT "$BASE...HEAD" -- db/migrations)
+          if [ -n "$changed" ]; then
+            echo "::error::Applied migrations were modified, renamed or deleted:"
+            echo "$changed"
+            echo "Add a new db/migrations/NNN_*.sql instead (see .claude/skills/add-task-field/SKILL.md)."
+            exit 1
+          fi
+          echo "OK: no applied migration changed."
+
+      - name: No CLAUDE.md (Claude Code must read AGENTS.md)
+        run: |
+          if [ -e CLAUDE.md ] || [ -e CLAUDE.local.md ]; then
+            echo "::error::CLAUDE.md / CLAUDE.local.md must not be committed; put team rules in AGENTS.md."
+            exit 1
+          fi
