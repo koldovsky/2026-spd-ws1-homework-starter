@@ -2,7 +2,10 @@
   "permissions": {
     "deny": [
       "Read(./.env)",
-      "Read(./.env.*)"
+      "Read(./.env.*)",
+      "Edit(./db/migrations/**)",
+      "Write(./db/migrations/**)",
+      "MultiEdit(./db/migrations/**)"
     ],
     "ask": [
       "Bash(git push *)",
@@ -16,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-migrations.py\""
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-migrations.mjs\""
           }
         ]
       }

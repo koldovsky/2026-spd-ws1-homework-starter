@@ -1,6 +1,6 @@
 # Agent instructions — Team Tasks
 
-<!-- owner: @oksanastrohetska · why: Give AI agents essential repository instructions · review-by: 2026-12-01 -->
+<!-- owner: @oksanastrohetska-lab · why: Give AI agents essential repository instructions · review-by: 2027-04-23 -->
 
 ## Project
 

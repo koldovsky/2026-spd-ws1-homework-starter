@@ -1,6 +1,6 @@
 # Team AI agreement — SDET SAT
 
-<!-- owner: @oksanastrohetska · review-by: 2026-12-01 · change it by PR, CODEOWNERS approve -->
+<!-- owner: @oksanastrohetska-lab · review-by: 2027-04-23 · change it by PR, CODEOWNERS approve -->
 
 This agreement defines how AI agents can contribute to the Team repository, how their work is verified,
 and who is responsible for maintaining the harness.
@@ -30,7 +30,7 @@ or unrelated modifications are included. AI-generated code must follow the same 
 
 ## 3. Harness owners
 
-- `AGENTS.md`, `.claude/**`, `docs/ai/**`: @oksanastrohetska (see `.github/CODEOWNERS`)
+- `AGENTS.md`, `.claude/**`, `docs/ai/**`: @oksanastrohetska-lab (see `.github/CODEOWNERS`)
 
 ## 4. How rules change
 

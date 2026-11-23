@@ -3,7 +3,7 @@ name: add-migration
 description: Add a new numbered SQLite migration to db/migrations and verify it applies on a fresh database. Use for any schema change.
 ---
 
-<!-- owner: @oksanastrohetska · why: Schema changes must be new migrations, never edits to applied ones; make that repeatable · review-by: 2026-12-01 -->
+<!-- owner: @oksanastrohetska-lab · why: Schema changes must be new migrations, never edits to applied ones; make that repeatable · review-by: 2027-04-23 -->
 
 # Add a database migration
 

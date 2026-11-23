@@ -1,6 +1,6 @@
 # Handoff — <ticket> — <YYYY-MM-DD>
 
-<!-- owner: @oksanastrohetska · why: Enable a fresh agent session to continue unfinished work · review-by: 2026-12-01 -->
+<!-- owner: @oksanastrohetska-lab · why: Enable a fresh agent session to continue unfinished work · review-by: 2027-04-23 -->
 <!-- Written at the end of a session so a fresh session (or a colleague) can continue without asking. -->
 
 **Goal:** <one sentence describing what "done" means>

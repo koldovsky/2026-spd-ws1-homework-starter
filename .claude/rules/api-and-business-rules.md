@@ -4,7 +4,7 @@ paths:
   - "lib/**"
 ---
 
-<!-- owner: @oksanastrohetska · why: Keep API status codes and task business rules consistent and covered by tests · review-by: 2026-12-01 -->
+<!-- owner: @oksanastrohetska-lab · why: Keep API status codes and task business rules consistent and covered by tests · review-by: 2027-04-23 -->
 
 # API and business-rule conventions
 

@@ -1,6 +1,6 @@
 # A/B note — SQL migration protection with PreToolUse hook
 
-<!-- owner: @oksanastrohetska · why: Measure how the team harness changes agent behavior · review-by: 2026-12-01 -->
+<!-- owner: @oksanastrohetska-lab · why: Measure how the team harness changes agent behavior · review-by: 2027-04-23 -->
 
 ## Hypothesis
 
