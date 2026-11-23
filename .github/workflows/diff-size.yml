@@ -1,0 +1,28 @@
+# HW 1.2 (optional): copy to .github/workflows/diff-size.yml in your PR. Runs docs/ai/ci/diff-size.mjs on every PR.
+# Rules: docs/ai/ci/README.md. Source: koldovsky/2026-spd-shop-harness v1.6.0.
+name: diff-size gate
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  size:
+    name: diff-size gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Changed lines without lockfiles, generated files and evidence
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          SIZE_WARN: 200
+          SIZE_FAIL: 400
+          SIZE_EXCLUDE: ''
+        run: node docs/ai/ci/diff-size.mjs
