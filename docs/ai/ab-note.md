@@ -2,7 +2,7 @@
 
 <!-- owner: @vajs · why: HOMEWORK.md item 9, shows whether the harness changes agent behaviour · review-by: 2027-02-24 -->
 
-**A — before:** commit `3d0ac87`, no harness. **B — after:** the same commit plus the harness files (`AGENTS.md`, `.claude/**`, `docs/ai/team-agreement.md`). Replace B with the PR commit sha once committed.
+**A — before:** commit `3d0ac87`, no harness. **B — after:** the same commit plus the harness files (`AGENTS.md`, `.claude/**`, `docs/ai/team-agreement.md`). B is commit `d6f87f9`.
 Each run: `claude -p "<prompt>" --output-format json --permission-mode acceptEdits` in its own git worktree, run on 2026-11-24 (Claude Code 2.1.331).
 Both sides load my user-level `~/.claude` config and plugins, so only the repo harness differs.
 
