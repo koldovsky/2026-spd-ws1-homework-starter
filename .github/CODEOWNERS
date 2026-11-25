@@ -1,0 +1,12 @@
+# owner: @RudyRoom1 · why: harness changes alter agent behaviour for everyone, so they need an owner's review · review-by: 2027-03-01
+# Agent harness
+/AGENTS.md        @RudyRoom1
+/.claude/         @RudyRoom1
+/docs/ai/         @RudyRoom1
+/.github/CODEOWNERS @RudyRoom1
+
+# Config that controls the harness (agentRules: false keeps Next.js out of AGENTS.md)
+/next.config.ts   @RudyRoom1
+
+# Applied migrations: schema history, reviewed by the owner
+/db/migrations/   @RudyRoom1
