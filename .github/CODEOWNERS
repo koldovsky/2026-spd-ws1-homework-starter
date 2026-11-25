@@ -1,0 +1,7 @@
+# owner: @vovchik-manko · why: harness files change how agents behave, so they need a named reviewer · review-by: 2027-03-31
+# Changes to these paths need an approval from the listed owner.
+
+/AGENTS.md          @vovchik-manko
+/.claude/           @vovchik-manko
+/docs/ai/           @vovchik-manko
+/.github/           @vovchik-manko
