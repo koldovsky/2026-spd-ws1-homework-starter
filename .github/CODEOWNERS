@@ -1,0 +1,9 @@
+# owner: @oshamoiev · why: harness files change agent behaviour, so the harness owner reviews every change to them (see docs/ai/team-agreement.md) · review-by: 2027-02-25
+
+/AGENTS.md           @oshamoiev
+/.claude/            @oshamoiev
+/docs/ai/            @oshamoiev
+/.github/CODEOWNERS  @oshamoiev
+
+# New migrations are signed off by the harness owner (autonomy level L2).
+/db/migrations/      @oshamoiev
