@@ -12,7 +12,7 @@ Next.js 16 + `node:sqlite` task tracker. Node >= 22.13.
 
 ## Hard rules
 
-- Applied migrations (`db/migrations/00*.sql`) are frozen. Fix forward with a new numbered file, `003_*.sql` onward.
+- Tracked migrations (files in `db/migrations/` committed in git) are frozen. Fix forward with a new numbered file, next number up. An untracked new migration can still be edited until it is committed.
 - Business rules live only in `lib/tasks.ts`; route handlers in `app/api/**` translate `RuleViolation` to HTTP 422 and stay thin.
 - Every behaviour change ships with a test in `lib/*.test.ts` that fails without the change.
 - `.env*` files and `data/*.db` stay out of commits; `.env.example` is the template.

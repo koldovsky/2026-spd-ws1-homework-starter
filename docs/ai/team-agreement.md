@@ -11,12 +11,14 @@ Levels: **L0** no agent · **L1** agent suggests, human writes · **L2** agent w
 
 | Change type | Level | Evidence that earns this level | Who signs off |
 |---|---|---|---|
-| Tests only (`lib/*.test.ts`) | L4 | New tests fail without the change and pass with it; `npm test` and `npm run typecheck` green in CI | Sampled weekly by @vajs |
+| Tests only (`lib/*.test.ts`) | L3 | New tests fail without the change and pass with it; `npm test` and `npm run typecheck` exit 0, re-run by the reviewer | Any team member reviews the PR |
 | API endpoint (`app/api/**`) | L3 | One route test per status code; `npm test`, `npm run typecheck`, `npm run build` green | Any team member reviews the PR |
-| New DB migration (`db/migrations/**`, new file) | L2 | `npm run db:reset` succeeds on a fresh DB with the new file; rollback note in the PR | @vajs (tech lead) reviews every line |
-| Editing an applied migration (existing `db/migrations/00*.sql`) | L0 | Blocked by the `PreToolUse` hook (exit 2); fix forward with a new migration | — |
+| New DB migration (`db/migrations/**`, new file) | L2 | `npm test` exits 0 (it applies every migration to an in-memory DB, so the new file runs after `001`, `002`); rollback note in the PR | @vajs (tech lead) reviews every line |
+| Editing a tracked migration (committed `db/migrations/*.sql`) | L0 | Blocked by the `PreToolUse` hook (exit 2); fix forward with a new migration | — |
 
 Rule of thumb: a change type goes one level up only when its check is cheap, independent of the agent, and runs every time.
+
+No row is L4 yet. L4 needs a CI job that runs `npm test` and `npm run typecheck` on every PR, and an agent merge path; the repo has neither, and `git push` is `ask` in `.claude/settings.json`. Tests-only changes move to L4 when both exist.
 
 ## 2. Who owns agent output
 
