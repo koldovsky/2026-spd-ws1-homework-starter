@@ -13,7 +13,7 @@ Team Tasks: a small Next.js 16 app with a SQLite (`node:sqlite`) store. Node >= 
 
 ## Where things live
 
-- `lib/tasks.ts` — all business rules (title 1..120, estimate 1..40 h, `todo → doing → done`, done is final)
+- `lib/tasks.ts` — all business rules (title and estimate limits, status transitions); read it for the exact numbers
 - `lib/db.ts` — opens SQLite and applies `db/migrations/*.sql` in order
 - `app/api/**` — thin route handlers: parse input, call `lib/tasks.ts`, map `RuleViolation` to 422
 
