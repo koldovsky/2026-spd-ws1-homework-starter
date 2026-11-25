@@ -10,3 +10,19 @@ data/*.db-*
 CLAUDE.local.md
 .claude/settings.local.json
 .claude/hooks/*.log
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Build output, coverage, logs
+out/
+build/
+dist/
+coverage/
+.vercel/
+*.log
+npm-debug.log*
