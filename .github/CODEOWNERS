@@ -1,0 +1,7 @@
+# owner: @vvfesik · why: the team agreement's §3/§4 make harness changes PR-gated with owner sign-off — CODEOWNERS is the enforcement · review-by: 2027-02-25
+# CODEOWNERS syntax does not support comments-as-metadata; this header is informational.
+# Harness files require @vvfesik's review before merge.
+/AGENTS.md @vvfesik
+/.claude/ @vvfesik
+/docs/ai/ @vvfesik
+/.github/CODEOWNERS @vvfesik
