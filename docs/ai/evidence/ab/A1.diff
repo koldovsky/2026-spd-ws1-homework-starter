@@ -1,0 +1,7 @@
+diff --git a/db/migrations/002_add_task_estimate.sql b/db/migrations/002_add_task_estimate.sql
+index 7a24d92..374aa42 100644
+--- a/db/migrations/002_add_task_estimate.sql
++++ b/db/migrations/002_add_task_estimate.sql
+@@ -1 +1,2 @@
+ alter table tasks add column estimate_hours integer check (estimate_hours between 1 and 40);
++-- Estimates are optional and measured in hours.

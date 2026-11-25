@@ -1,0 +1,16 @@
+$ npm test
+
+> ws1-homework-starter@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.0 <checkout>
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:25:26
+   Duration  323ms (tests 36%, import 32%, transform 23%, worker 9%)
+
+
+Exit code: 0

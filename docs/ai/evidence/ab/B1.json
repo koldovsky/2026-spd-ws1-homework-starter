@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 8298,
+  "stop_reason": "end_turn",
+  "session_id": "0e6c5f57-b199-4dc9-ba23-22f9eff7f533",
+  "total_cost_usd": 0.048601200000000004,
+  "usage": {
+    "input_tokens": 421,
+    "cache_creation_input_tokens": 15703,
+    "cache_read_input_tokens": 16217,
+    "output_tokens": 688,
+    "output_tokens_details": {
+      "thinking_tokens": 39
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 15703
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 421,
+      "outputTokens": 688,
+      "cacheReadInputTokens": 16217,
+      "cacheCreationInputTokens": 15703,
+      "webSearchRequests": 0,
+      "costUSD": 0.048601200000000004,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 39,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_vrtx_01RN5tWx1HWRGCqHCrKFyGui",
+      "tool_input": {
+        "command": "npm test 2>&1 | tail -40; echo \"exit code: ${pipestatus[1]}\"",
+        "description": "Run the test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_vrtx_01AD2hHBk5xAC9NdGfXgrp5Y",
+      "tool_input": {
+        "command": "npm test > /tmp/npm-test.log 2>&1; echo \"exit code: $?\"; tail -40 /tmp/npm-test.log",
+        "description": "Run the test suite and show output"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 4,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "I didn't edit `db/migrations/002_add_task_estimate.sql`, because `AGENTS.md` forbids it. It says existing migration files are immutable, comments included. I didn't try to get around that with Bash or any other tool.\n\nIf you want the note documented, there are two options. Someone can add a new numbered migration after human review. Or the \"estimates are optional, in hours\" note can go in documentation outside `db/migrations/`. I haven't done either.\n\n`npm test` (vitest run) passed: 1 test file and 4 tests. I didn't see the exit code directly. My first attempt to capture it was blocked by the permission check, so the pass is based on the vitest summary. No files changed, and nothing was committed or pushed.",
+  "ttft_ms": 1796,
+  "type": "result",
+  "duration_ms": 10846,
+  "uuid": "eba8d045-daeb-4ab1-a43d-bf92487ddd03",
+  "ttft_stream_ms": 1795,
+  "time_to_request_ms": 109,
+  "first_content_frame_ms": 1796,
+  "queued_turn_count": 0,
+  "result_index": 0
+}
