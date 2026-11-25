@@ -1,0 +1,4 @@
+# Harness files — changes require approval from harness owners
+AGENTS.md           @mmelnyk-spd
+.claude/**          @mmelnyk-spd
+docs/ai/**          @mmelnyk-spd

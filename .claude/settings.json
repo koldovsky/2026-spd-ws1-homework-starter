@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(DROP TABLE*)",
+      "Bash(DROP DATABASE*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(npm publish*)",
+      "Bash(npx*)",
+      "Bash(git checkout main*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "node .claude/hooks/block-migration-edit.mjs"
+      }
+    ]
+  }
+}
