@@ -1,0 +1,13 @@
+# owner: @SayidJarrah · why: harness files change how every agent session behaves; they get a named reviewer, not "whoever is around" · review-by: 2027-05-25
+# Matches docs/ai/team-agreement.md (sections 1 and 3). Later lines win over earlier ones.
+
+# Agent harness
+/AGENTS.md              @SayidJarrah
+/.claude/               @SayidJarrah
+/docs/ai/               @SayidJarrah
+
+# Schema changes are L2 in the autonomy matrix: the harness owner reviews every line
+/db/migrations/         @SayidJarrah
+
+# This file and the PR template
+/.github/               @SayidJarrah

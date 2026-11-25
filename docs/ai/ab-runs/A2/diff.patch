@@ -1,0 +1,87 @@
+diff --git a/db/migrations/003_add_task_priority.sql b/db/migrations/003_add_task_priority.sql
+new file mode 100644
+index 0000000..073597f
+--- /dev/null
++++ b/db/migrations/003_add_task_priority.sql
+@@ -0,0 +1 @@
++alter table tasks add column priority text not null default 'medium' check (priority in ('low', 'medium', 'high'));
+diff --git a/lib/tasks.test.ts b/lib/tasks.test.ts
+index f7c5636..486882b 100644
+--- a/lib/tasks.test.ts
++++ b/lib/tasks.test.ts
+@@ -30,4 +30,21 @@ describe("tasks", () => {
+     const t = createTask(db, { title: "Path rule" });
+     expect(() => moveTask(db, t.id, "done")).toThrow(RuleViolation);
+   });
++
++  it("defaults priority to medium", () => {
++    expect(createTask(db, { title: "No priority" }).priority).toBe("medium");
++  });
++
++  it.each(["low", "medium", "high"] as const)("accepts priority %s", (priority) => {
++    const t = createTask(db, { title: "Prioritised", priority });
++    expect(t.priority).toBe(priority);
++    expect(listTasks(db)[0].priority).toBe(priority);
++  });
++
++  it.each(["urgent", "HIGH", "", null, 1])("rejects priority %j and stores nothing", (priority) => {
++    expect(() => createTask(db, { title: "Bad priority", priority: priority as never })).toThrow(
++      "priority must be low, medium or high",
++    );
++    expect(listTasks(db)).toHaveLength(0);
++  });
+ });
+diff --git a/lib/tasks.ts b/lib/tasks.ts
+index a2556f5..07cfe1e 100644
+--- a/lib/tasks.ts
++++ b/lib/tasks.ts
+@@ -1,12 +1,15 @@
+ import type { DatabaseSync } from "node:sqlite";
+ 
+ export type Status = "todo" | "doing" | "done";
++export const PRIORITIES = ["low", "medium", "high"] as const;
++export type Priority = (typeof PRIORITIES)[number];
+ export interface Task {
+   id: number;
+   title: string;
+   status: Status;
+   assignee: string | null;
+   estimateHours: number | null;
++  priority: Priority;
+   createdAt: string;
+ }
+ 
+@@ -14,15 +17,22 @@ export class RuleViolation extends Error {}
+ 
+ const NEXT: Record<Status, Status[]> = { todo: ["doing"], doing: ["todo", "done"], done: [] };
+ 
+-export function createTask(db: DatabaseSync, input: { title: string; assignee?: string; estimateHours?: number }): Task {
++export function createTask(
++  db: DatabaseSync,
++  input: { title: string; assignee?: string; estimateHours?: number; priority?: Priority },
++): Task {
+   const title = input.title?.trim() ?? "";
+   if (title.length < 1 || title.length > 120) throw new RuleViolation("title must be 1..120 characters");
+   if (input.estimateHours !== undefined && (input.estimateHours < 1 || input.estimateHours > 40)) {
+     throw new RuleViolation("estimateHours must be 1..40");
+   }
++  // Checked at runtime: API bodies are untyped JSON, so `priority` may be any value.
++  if (input.priority !== undefined && !(PRIORITIES as readonly unknown[]).includes(input.priority)) {
++    throw new RuleViolation("priority must be low, medium or high");
++  }
+   const result = db
+-    .prepare("insert into tasks (title, assignee, estimate_hours) values (?, ?, ?)")
+-    .run(title, input.assignee ?? null, input.estimateHours ?? null);
++    .prepare("insert into tasks (title, assignee, estimate_hours, priority) values (?, ?, ?, ?)")
++    .run(title, input.assignee ?? null, input.estimateHours ?? null, input.priority ?? "medium");
+   return getTask(db, Number(result.lastInsertRowid))!;
+ }
+ 
+@@ -51,6 +61,7 @@ function toTask(row: Record<string, unknown>): Task {
+     status: row.status as Status,
+     assignee: (row.assignee as string | null) ?? null,
+     estimateHours: row.estimate_hours == null ? null : Number(row.estimate_hours),
++    priority: row.priority as Priority,
+     createdAt: String(row.created_at),
+   };
+ }

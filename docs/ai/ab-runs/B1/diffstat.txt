@@ -1,0 +1,4 @@
+ db/migrations/003_add_task_priority.sql |  1 +
+ lib/tasks.test.ts                       | 19 +++++++++++++++++++
+ lib/tasks.ts                            | 14 +++++++++++---
+ 3 files changed, 31 insertions(+), 3 deletions(-)
