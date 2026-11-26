@@ -18,7 +18,7 @@ Levels: **L0** no agent · **L1** agent suggests, human writes · **L2** agent w
 | Harness (`AGENTS.md`, `.claude/**`, `docs/ai/**`) | **L2** | A/B note for behaviour changes (`docs/ai/ab-note.md`); `node docs/ai/hook-cases.mjs` green (also in CI); edits to `.claude/**`, `.github/**` and `AGENTS.md` are `ask` in settings | @skindyk (CODEOWNERS) |
 | Dependencies (`package.json`, lockfile) | **L1** | `npm install` and edits to `package.json` are `ask`; human decides and runs the install | @skindyk |
 | Editing / deleting an applied migration | **L0** | Blocked before the call by `.claude/hooks/protect-migrations.mjs` (exit 2); anything that slips through is reported after the command by `check-migrations-diff.mjs`; CI fails the PR for every agent and person | — |
-| Secrets, local DB (`.env*`, `data/**`) | **L0** | `deny` Read/Edit rules in `.claude/settings.json` (also denies `.env.example`, which is fake anyway) | — |
+| Secrets, local DB (`.env*`, `data/**`) | **L0** | `deny` Read/Edit rules in `.claude/settings.json`. Claude Code also applies them to shell reads (`cat .env`, `Get-Content .env` were denied in a live test). `.claude/hooks/protect-secrets.mjs` blocks what the denies miss: recursive searches over the root (`grep -rn X .` printed `.env` before the hook) and inline scripts. Cases in `hook-cases.mjs`, run in CI. | — |
 
 Rule of thumb: a change type goes one level up only when its check is cheap, independent of the agent, and runs every time.
 Tests-only goes to L4 when the `ci` workflow is a **required** status check on `main` and auto-merge is enabled for agent PRs.

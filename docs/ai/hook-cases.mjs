@@ -8,6 +8,7 @@ import { join } from "node:path";
 const root = process.cwd();
 const pre = join(root, ".claude", "hooks", "protect-migrations.mjs");
 const post = join(root, ".claude", "hooks", "check-migrations-diff.mjs");
+const secrets = join(root, ".claude", "hooks", "protect-secrets.mjs");
 const m = "db/migrations/";
 const tmp = mkdtempSync(join(tmpdir(), "hook-cases-"));
 
@@ -36,6 +37,12 @@ const preCases = [
   ["Bash sed -i applied 002", 2, bash(`sed -i 's/40/80/' ${m}002_add_task_estimate.sql`)],
   ["Bash append into applied 002", 2, bash(`echo x >> ${m}002_add_task_estimate.sql`)],
   ["Bash (cd migrations; echo x>>001) subshell, no space", 2, bash(`(cd db/migrations; echo x>>001_create_tasks.sql)`)],
+  ["Bash ls 001* | xargs sed -i", 2, bash(`ls ${m}001* | xargs sed -i 's/40/80/'`)],
+  ["Bash git ls-files migrations | xargs git rm", 2, bash(`git ls-files db/migrations | xargs git rm`)],
+  ["Bash cd migrations && ls | xargs -n1 rm", 2, bash(`cd db/migrations && ls | xargs -n 1 rm`)],
+  ["PowerShell Get-ChildItem migrations | Remove-Item", 2, ps(`Get-ChildItem db\\migrations | Remove-Item`)],
+  ["Bash echo NEW 003 | xargs rm (allowed)", 0, bash(`echo ${m}003_widen_estimate.sql | xargs rm`)],
+  ["Bash ls migrations | xargs cat (read only)", 0, bash(`ls ${m}* | xargs cat`)],
   ["Bash cp x over applied 001", 2, bash(`cp x.sql ${m}001_create_tasks.sql`)],
   ["Bash install over applied 001", 2, bash(`install -m 644 x.sql ${m}001_create_tasks.sql`)],
   ["Bash git rm -r migrations folder", 2, bash(`git rm -r db/migrations`)],
@@ -78,6 +85,45 @@ function run(hook, name, want, payload, projectDir = root, session = "hook-cases
 console.log("# PreToolUse: protect-migrations.mjs");
 for (const [name, want, payload] of preCases) run(pre, name, want, payload);
 
+const secretsCases = [
+  // searches that reach .env without naming it
+  ["Bash grep -rn SECRET .", 2, bash(`grep -rn SECRET .`)],
+  ["Bash grep -R password (no path = cwd)", 2, bash(`grep -R password`)],
+  ["Bash egrep --recursive token .", 2, bash(`egrep --recursive token .`)],
+  ["Bash rg --no-ignore SECRET", 2, bash(`rg --no-ignore SECRET`)],
+  ["Bash rg -uu SECRET .", 2, bash(`rg -uu SECRET .`)],
+  ["Bash rg --hidden SECRET", 2, bash(`rg --hidden SECRET`)],
+  ["Bash findstr /s SECRET *", 2, bash(`findstr /s SECRET *`)],
+  ["PowerShell gci -Recurse | Select-String SECRET", 2, ps(`Get-ChildItem -Recurse | Select-String SECRET`)],
+  ["PowerShell Select-String -Path ./* SECRET", 2, ps(`Select-String -Pattern SECRET -Path ./*`)],
+  ["Bash grep SECRET .* (dotfile glob)", 2, bash(`grep SECRET .*`)],
+  // reading .env by name
+  ["Bash cat .env", 2, bash(`cat .env`)],
+  ["Bash head -1 .env.local", 2, bash(`head -1 .env.local`)],
+  ["Bash source .env", 2, bash(`source .env`)],
+  ["Bash cp .env /tmp/x", 2, bash(`cp .env /tmp/x`)],
+  ["Bash echo x | cat .env (hidden in a pipe)", 2, bash(`echo x | cat .env`)],
+  ["Bash grep -e SECRET .env", 2, bash(`grep -e SECRET .env`)],
+  ["Bash node -e readFileSync('.env')", 2, bash(`node -e "console.log(require('fs').readFileSync('.env','utf8'))"`)],
+  ["PowerShell Get-Content .env", 2, ps(`Get-Content .env`)],
+  ["PowerShell Get-Content -Path .\\.env.production", 2, ps(`Get-Content -Path .\\.env.production`)],
+  ["Bash node - heredoc script reading .env", 2, bash(`node - <<'EOF'\nconsole.log(require('fs').readFileSync('.env','utf8'))\nEOF`)],
+  ["Bash heredoc doc text mentioning cat .env (data)", 0, bash(`cat > notes.md <<'EOF'\nNever run cat .env or grep -rn SECRET .\nEOF`)],
+  // harmless, must not block
+  ["Bash grep -rn --exclude='.env*' SECRET .", 0, bash(`grep -rn --exclude='.env*' SECRET .`)],
+  ["Bash grep -rn estimate lib/ (subfolder)", 0, bash(`grep -rn estimate lib/`)],
+  ["Bash rg SECRET (respects .gitignore)", 0, bash(`rg SECRET`)],
+  ["Bash git grep SECRET", 0, bash(`git grep SECRET`)],
+  ["Bash grep -n '\\.env' .gitignore (pattern, not file)", 0, bash(`grep -n "\\.env" .gitignore`)],
+  ["Bash cat .env.example", 0, bash(`cat .env.example`)],
+  ["Bash ls -la .env", 0, bash(`ls -la .env`)],
+  ["PowerShell gci lib -Recurse | Select-String estimate", 0, ps(`Get-ChildItem lib -Recurse | Select-String estimate`)],
+  ["Bash npm test", 0, bash(`npm test`)],
+];
+
+console.log("\n# PreToolUse: protect-secrets.mjs");
+for (const [name, want, payload] of secretsCases) run(secrets, name, want, payload);
+
 // PostToolUse cases run in a throwaway git repo so the real working tree is never touched.
 console.log("\n# PostToolUse: check-migrations-diff.mjs (temp repo)");
 const repo = join(tmp, "repo");
@@ -105,6 +151,6 @@ rmSync(mig("001_create_tasks.sql"));
 run(post, "applied 001 deleted", 2, anyBash, repo, session);
 
 rmSync(tmp, { recursive: true, force: true });
-const total = preCases.length + 7;
+const total = preCases.length + secretsCases.length + 7;
 console.log(failed ? `\n${failed} of ${total} case(s) failed` : `\nall ${total} cases passed`);
 process.exit(failed ? 1 : 0);

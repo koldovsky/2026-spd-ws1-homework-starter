@@ -140,13 +140,38 @@ const ALL_ARGS = /^(rm|rmdir|del|erase|rd|unlink|shred|truncate|mv|move|ren|rena
 const DEST_ONLY = /^(cp|copy|Copy-Item|cpi|install|ln|xcopy|rsync|scp)$/i;
 
 let vcwd = cwd;
-for (const seg of blanked.split(/&&|\|\||;|\n|\|/)) {
+// Keep the separators so we know which segments are joined by a pipe (`ls db/migrations/* | xargs sed -i …`).
+const parts = blanked.split(/(&&|\|\||;|\n|\|)/);
+let upstream = []; // migration paths named by the previous pipeline stage
+for (let p = 0; p < parts.length; p += 2) {
+  const seg = parts[p];
+  const pipedIn = p > 0 && parts[p - 1] === "|";
+  const fromPipe = pipedIn ? upstream : [];
+  upstream = [];
   let words = seg.trim().split(/\s+/).filter(Boolean).map((w) => w.replace(/^[({]+|[)}]+$/g, ""));
   while (words.length && (PREFIX.test(words[0]) || /^\w+=/.test(words[0]))) words.shift();
   if (!words.length) continue;
+  // `xargs [opts] cmd …` runs cmd on the paths the previous stage printed.
+  let viaXargs = false;
+  if (/^xargs$/i.test(words[0])) {
+    viaXargs = true;
+    words.shift();
+    while (words.length && words[0].startsWith("-")) {
+      const flag = words.shift();
+      if (/^-(I|n|L|P|d|a|E|s|-max-args|-replace|-delimiter|-arg-file)$/.test(flag)) words.shift(); // option value
+    }
+    if (!words.length) continue;
+  }
   const [w0 = "", w1 = ""] = words;
   const args = words.slice(1);
   const positional = args.filter((w) => !w.startsWith("-"));
+  // What this stage could hand to a next `| xargs …` / `| Remove-Item`: the migration paths it names, or the whole
+  // folder when it lists the current directory while inside db/migrations.
+  upstream = positional.map((w) => keyOf(w, vcwd)).filter(inMigrations);
+  if (!upstream.length && inMigrations(keyOf(".", vcwd))) upstream = [DIR];
+  // Paths arriving through the pipe count as arguments for commands that take them that way.
+  const piped = pipedIn && (viaXargs || positional.length === 0) ? fromPipe : [];
+  const guardPiped = (why) => piped.forEach((k) => guard(k, `${why} (paths piped in${viaXargs ? " via xargs" : ""})`));
 
   // Track directory changes so `cd db/migrations && rm 001_x.sql` resolves correctly.
   if (/^(cd|pushd|chdir|Set-Location|sl)$/i.test(w0)) {
@@ -183,6 +208,7 @@ for (const seg of blanked.split(/&&|\|\||;|\n|\|/)) {
     }
     if (w1 === "rm" || w1 === "mv") {
       for (const a of positional.slice(1)) guard(keyOf(a, vcwd), `git ${w1} on an applied migration`);
+      guardPiped(`git ${w1} on an applied migration`);
       continue;
     }
     if (w1 === "apply" || w1 === "am") {
@@ -208,6 +234,7 @@ for (const seg of blanked.split(/&&|\|\||;|\n|\|/)) {
   const inPlace = (/^sed$/i.test(w0) && args.some((a) => /^-\w*i/.test(a) || a === "--in-place")) || (/^perl$/i.test(w0) && args.some((a) => /^-\w*i/.test(a)));
   if (ALL_ARGS.test(w0) || inPlace) {
     for (const a of positional) guard(keyOf(a, vcwd), `${w0} modifies an applied migration`);
+    guardPiped(`${w0} modifies an applied migration`);
     continue;
   }
 

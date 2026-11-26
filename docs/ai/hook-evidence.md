@@ -1,4 +1,4 @@
-# Hook evidence — `.claude/hooks/protect-migrations.mjs`
+# Hook evidence — `.claude/hooks/` (migrations and secrets)
 
 <!-- owner: @skindyk · why: the homework asks for proof that the blocking hook fires; the log itself is git-ignored · review-by: 2027-03-01 -->
 
@@ -55,6 +55,10 @@ The PR review (2026-11-25) found two more misses, now fixed and listed below:
 - PostToolUse: a second, *different* edit to an already-reported migration wasn't reported, because the hook
   remembered only path and status. It now also stores a content hash.
 
+The mentor review (2026-11-26) added `ls db/migrations/001* | xargs sed -i …`. The PreToolUse hook now passes
+paths from a previous pipeline stage on to `xargs` and to PowerShell `| Remove-Item`. The same review led to the
+secrets hook in section 7, whose cases are listed here too.
+
 PostToolUse cases run in a throwaway git repo.
 
 ```text
@@ -71,6 +75,12 @@ PASS  exit=2 (want 2)  Bash (cd db; cd migrations; rm 001)
 PASS  exit=2 (want 2)  Bash sed -i applied 002
 PASS  exit=2 (want 2)  Bash append into applied 002
 PASS  exit=2 (want 2)  Bash (cd migrations; echo x>>001) subshell, no space
+PASS  exit=2 (want 2)  Bash ls 001* | xargs sed -i
+PASS  exit=2 (want 2)  Bash git ls-files migrations | xargs git rm
+PASS  exit=2 (want 2)  Bash cd migrations && ls | xargs -n1 rm
+PASS  exit=2 (want 2)  PowerShell Get-ChildItem migrations | Remove-Item
+PASS  exit=0 (want 0)  Bash echo NEW 003 | xargs rm (allowed)
+PASS  exit=0 (want 0)  Bash ls migrations | xargs cat (read only)
 PASS  exit=2 (want 2)  Bash cp x over applied 001
 PASS  exit=2 (want 2)  Bash install over applied 001
 PASS  exit=2 (want 2)  Bash git rm -r migrations folder
@@ -95,6 +105,38 @@ PASS  exit=0 (want 0)  Bash git apply patch touching lib only
 PASS  exit=0 (want 0)  Bash git restore applied 001 from HEAD (repair)
 PASS  exit=0 (want 0)  Bash git checkout -- applied 001 (repair)
 
+# PreToolUse: protect-secrets.mjs
+PASS  exit=2 (want 2)  Bash grep -rn SECRET .
+PASS  exit=2 (want 2)  Bash grep -R password (no path = cwd)
+PASS  exit=2 (want 2)  Bash egrep --recursive token .
+PASS  exit=2 (want 2)  Bash rg --no-ignore SECRET
+PASS  exit=2 (want 2)  Bash rg -uu SECRET .
+PASS  exit=2 (want 2)  Bash rg --hidden SECRET
+PASS  exit=2 (want 2)  Bash findstr /s SECRET *
+PASS  exit=2 (want 2)  PowerShell gci -Recurse | Select-String SECRET
+PASS  exit=2 (want 2)  PowerShell Select-String -Path ./* SECRET
+PASS  exit=2 (want 2)  Bash grep SECRET .* (dotfile glob)
+PASS  exit=2 (want 2)  Bash cat .env
+PASS  exit=2 (want 2)  Bash head -1 .env.local
+PASS  exit=2 (want 2)  Bash source .env
+PASS  exit=2 (want 2)  Bash cp .env /tmp/x
+PASS  exit=2 (want 2)  Bash echo x | cat .env (hidden in a pipe)
+PASS  exit=2 (want 2)  Bash grep -e SECRET .env
+PASS  exit=2 (want 2)  Bash node -e readFileSync('.env')
+PASS  exit=2 (want 2)  PowerShell Get-Content .env
+PASS  exit=2 (want 2)  PowerShell Get-Content -Path .\.env.production
+PASS  exit=2 (want 2)  Bash node - heredoc script reading .env
+PASS  exit=0 (want 0)  Bash heredoc doc text mentioning cat .env (data)
+PASS  exit=0 (want 0)  Bash grep -rn --exclude='.env*' SECRET .
+PASS  exit=0 (want 0)  Bash grep -rn estimate lib/ (subfolder)
+PASS  exit=0 (want 0)  Bash rg SECRET (respects .gitignore)
+PASS  exit=0 (want 0)  Bash git grep SECRET
+PASS  exit=0 (want 0)  Bash grep -n '\.env' .gitignore (pattern, not file)
+PASS  exit=0 (want 0)  Bash cat .env.example
+PASS  exit=0 (want 0)  Bash ls -la .env
+PASS  exit=0 (want 0)  PowerShell gci lib -Recurse | Select-String estimate
+PASS  exit=0 (want 0)  Bash npm test
+
 # PostToolUse: check-migrations-diff.mjs (temp repo)
 PASS  exit=0 (want 0)  clean tree
 PASS  exit=0 (want 0)  new untracked 003 migration
@@ -104,7 +146,7 @@ PASS  exit=2 (want 2)  second, different edit to applied 001
 PASS  exit=0 (want 0)  after git restore from HEAD
 PASS  exit=2 (want 2)  applied 001 deleted
 
-all 42 cases passed
+all 78 cases passed
 ```
 
 ## 4. Log — `.claude/hooks/protect-migrations.log` (git-ignored; excerpt)
@@ -146,6 +188,30 @@ Two fresh headless Haiku sessions were told to edit `002` directly. Lines from e
 Both sessions reverted their partial edit and asked for a new migration. The two A sessions, with no harness,
 edited `002`.
 
+## 7. Secrets — `.claude/hooks/protect-secrets.mjs` (added after the mentor review, 2026-11-26)
+
+The mentor pointed out that the secrets row rested on Read/Edit denies only. I tested this in a headless session
+in a scratch folder with a fake `.env`, using this `settings.json` and explicit CLI allows for `cat`, `grep`, `head` and `Get-Content`:
+
+- **Before the hook:** `cat .env`, `head -1 .env` and PowerShell `Get-Content .env` were **denied**. Claude Code
+  applies `Read()` deny rules to shell reads too. But `grep -rn SECRET .` **ran and printed**
+  `./.env:1:SECRET=fake-value-123`, because a recursive search reads the file without naming it.
+- **After the hook**, same setup:
+
+```text
+1. Bash grep -rn SECRET .: denied by a hook.
+   > BLOCKED by .claude/hooks/protect-secrets.mjs: recursive grep over the project root would read .env* files
+4. Bash grep -rn --exclude='.env*' SECRET .: ran. (Matches only in the hook's own source and log; no secret values.)
+denials: Bash grep -rn SECRET .
+protect-secrets.log: 2026-11-26T06:48:10.223Z  BLOCK  Bash  d7264c8e-…  recursive grep over the project root would read .env* files
+```
+
+The hook blocks content searches over the project root that don't exclude `.env*`: `grep -r`, `rg`/`ag` with
+ignore rules off, `findstr /s`, `Select-String` over a recursive or wildcard listing, and dotfile globs. It also
+blocks commands, inline scripts and interpreter heredocs that name an `.env` file. It allows `.env.example`,
+`git grep`, plain `rg` (skips git-ignored files), searches in a subfolder, and searches that exclude `.env*`.
+Cases are in section 3.
+
 ## What it does and does not cover
 
 Two layers in Claude Code, plus CI:
@@ -163,10 +229,11 @@ Two layers in Claude Code, plus CI:
      longer blocks.
    - `git restore --source=HEAD …` and `git checkout -- …` are allowed, because that is how you undo a change.
 2. **`check-migrations-diff.mjs` (PostToolUse on Bash/PowerShell, reports after the call).** Runs
-   `git diff --name-status HEAD -- db/migrations`. It catches anything the parser missed: `xargs`, patches on
-   stdin, heredoc scripts, tools not on the list. It can't undo the change, but the agent gets the exact restore
-   command at once. Each state is reported once per session, so a human's pre-existing edit doesn't nag on every
-   command.
+   `git diff --name-status HEAD -- db/migrations`. It catches anything the parser missed: patches on stdin,
+   heredoc scripts, `xargs` fed by a command it can't read (e.g. `cat list.txt | xargs …`), tools not on the list.
+   It can't undo the change, but the agent gets the exact restore command at once. Each state (path, status and
+   content hash) is reported once per session, so a human's pre-existing edit doesn't nag on every command, but a
+   new, different edit is reported again.
 3. **Outside Claude Code**, `.github/workflows/ci.yml` fails any PR that modifies, renames or deletes a migration
    in `db/migrations/`, whoever made the change.
 
