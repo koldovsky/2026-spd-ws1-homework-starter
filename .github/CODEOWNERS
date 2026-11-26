@@ -1,0 +1,8 @@
+# Harness files: changes need approval from the harness owners (see docs/ai/team-agreement.md)
+/AGENTS.md          @edvardino
+/.claude/           @edvardino
+/docs/ai/           @edvardino
+/.github/CODEOWNERS @edvardino
+
+# Applied migrations are the riskiest area
+/db/migrations/     @edvardino
