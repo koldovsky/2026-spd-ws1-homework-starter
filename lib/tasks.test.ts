@@ -31,3 +31,31 @@ describe("tasks", () => {
     expect(() => moveTask(db, t.id, "done")).toThrow(RuleViolation);
   });
 });
+
+describe("estimateHours (TASK-7)", () => {
+  const MESSAGE = "estimateHours must be a whole number 1..40";
+
+  it.each([1, 40])("accepts a whole hour value at the boundary: %i", (hours) => {
+    const t = createTask(db, { title: "Valid estimate", estimateHours: hours });
+    expect(t.estimateHours).toBe(hours);
+    expect(listTasks(db)).toHaveLength(1);
+  });
+
+  it.each([0, 41, 1.5, "3", "abc"])("rejects %p with the exact message and stores nothing", (hours) => {
+    expect(() => createTask(db, { title: "Bad estimate", estimateHours: hours })).toThrow(RuleViolation);
+    expect(() => createTask(db, { title: "Bad estimate", estimateHours: hours })).toThrow(MESSAGE);
+    expect(listTasks(db)).toHaveLength(0);
+  });
+
+  it("creates a task without estimateHours with null", () => {
+    const t = createTask(db, { title: "No estimate" });
+    expect(t.estimateHours).toBeNull();
+    expect(listTasks(db)).toHaveLength(1);
+  });
+
+  it("treats an explicit null like an absent field", () => {
+    const t = createTask(db, { title: "Explicit null", estimateHours: null });
+    expect(t.estimateHours).toBeNull();
+    expect(listTasks(db)).toHaveLength(1);
+  });
+});

@@ -1,30 +1,32 @@
-## Participant
+## Requirement
 
-- **First and last name (required):**
-- GitHub handle:
+- Ticket: <!-- link, e.g. docs/tickets/TASK-7.md -->
+- Spec: <!-- link to the committed spec: acceptance criteria, non-goals -->
 
-## What I built
+## Scope
 
-<!-- 3–5 sentences: the harness, and why these rules for this repo -->
+<!-- What changes, in 1–3 lines. One purpose per PR. What is deliberately not in this PR. -->
 
-## Checklist
+## Verified, and how
 
-- [ ] `docs/ai/team-agreement.md` — autonomy matrix with ≥ 4 change types, owners, how rules change
-- [ ] short root `AGENTS.md`, no `CLAUDE.md`
-- [ ] path rule in `.claude/rules/` with `paths:`
-- [ ] skill in `.claude/skills/`
-- [ ] handoff template
-- [ ] blocking hook + evidence (log or manual run output with exit code)
-- [ ] permissions in `.claude/settings.json` (deny + ask)
-- [ ] `.github/CODEOWNERS`
-- [ ] A/B note, ≥ 2 runs per side
+- Revision: <!-- the SHA the checks ran on -->
+- Evidence: <!-- docs/evidence/<KEY>/<slice>.md: commands, outputs, exit codes -->
+- Commands: <!-- e.g. npm test · npm run typecheck · node docs/ai/ci/trace-gate.mjs (local run) -->
+- Tests that prove the acceptance criteria: <!-- file and test names -->
 
-## Hook evidence
+## Known gaps
 
-<!-- paste the log lines or the manual run: command, stderr, exit code -->
+<!-- What was not verified, and why. "None" only if you mean it. -->
 
-## Environment
+## Rollback
 
-- Claude Code version (`claude --version`):
-- OS:
-- Anything that didn't work as documented:
+<!-- How to undo: revert the merge commit? data or config to restore? -->
+
+## Agent involvement
+
+<!-- None, or: tool and model, what it did (spec draft, code, tests, review). Informational only: the author answers for the change, there is no Assisted-by trailer. -->
+
+## Accountable
+
+- Author: <!-- @handle — answers for this change after merge -->
+- Reviewer: <!-- @handle of the human who judged it; agent review findings linked or pasted below -->

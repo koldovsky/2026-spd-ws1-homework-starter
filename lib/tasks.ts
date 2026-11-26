@@ -14,15 +14,16 @@ export class RuleViolation extends Error {}
 
 const NEXT: Record<Status, Status[]> = { todo: ["doing"], doing: ["todo", "done"], done: [] };
 
-export function createTask(db: DatabaseSync, input: { title: string; assignee?: string; estimateHours?: number }): Task {
+export function createTask(db: DatabaseSync, input: { title: string; assignee?: string; estimateHours?: unknown }): Task {
   const title = input.title?.trim() ?? "";
   if (title.length < 1 || title.length > 120) throw new RuleViolation("title must be 1..120 characters");
-  if (input.estimateHours !== undefined && (input.estimateHours < 1 || input.estimateHours > 40)) {
-    throw new RuleViolation("estimateHours must be 1..40");
+  const est = input.estimateHours;
+  if (est !== undefined && est !== null && !(typeof est === "number" && Number.isInteger(est) && est >= 1 && est <= 40)) {
+    throw new RuleViolation("estimateHours must be a whole number 1..40");
   }
   const result = db
     .prepare("insert into tasks (title, assignee, estimate_hours) values (?, ?, ?)")
-    .run(title, input.assignee ?? null, input.estimateHours ?? null);
+    .run(title, input.assignee ?? null, typeof est === "number" ? est : null);
   return getTask(db, Number(result.lastInsertRowid))!;
 }
 
