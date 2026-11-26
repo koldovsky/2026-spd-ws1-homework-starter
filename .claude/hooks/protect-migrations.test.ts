@@ -76,12 +76,17 @@ describe("protect-migrations hook: Bash", () => {
     "cd db && rm migrations/002_add_task_estimate.sql",
     "git mv db/migrations/002_add_task_estimate.sql db/migrations/002_renamed.sql",
     "git checkout main -- db/migrations/001_create_tasks.sql",
+    "git restore --source=HEAD~1 -- db/migrations/001_create_tasks.sql",
     "cp /tmp/x.sql db/migrations/001_create_tasks.sql",
+    "cd db/migrations && echo x>>001_create_tasks.sql",
+    'echo "a; b" | tee db/migrations/001_create_tasks.sql',
     "echo 'drop table tasks;' >> db/migrations/001_create_tasks.sql",
     "echo x>db/migrations/001_create_tasks.sql",
     "echo x>>db/migrations/001_create_tasks.sql",
     "echo x 2>/dev/null >db/migrations/001_create_tasks.sql",
     "patch db/migrations/001_create_tasks.sql fix.diff",
+    "dd if=/dev/zero of=db/migrations/001_create_tasks.sql",
+    "sudo rm db/migrations/001_create_tasks.sql",
     "sed -i '' 's/120/200/' db/migrations/001_create_tasks.sql",
     "sed -E -i '' 's/120/200/' db/migrations/001_create_tasks.sql",
     "perl -pi -e 's/120/200/' db/migrations/001_create_tasks.sql",
@@ -102,9 +107,22 @@ describe("protect-migrations hook: Bash", () => {
     "cd db/migrations && rm 003_add_priority.sql",
     "git checkout -b feature/priority",
     "git checkout .",
+    // Only paths that are written to count: reading a migration, restoring it to HEAD, or naming it in a message is fine.
+    "cp db/migrations/001_create_tasks.sql /tmp/copy.sql",
+    "git restore --source=HEAD -- db/migrations/001_create_tasks.sql",
+    "git checkout HEAD -- db/migrations/001_create_tasks.sql",
+    'git commit -m "docs: never rm db/migrations/001"',
+    'git commit -m "step one; rm db/migrations/001_create_tasks.sql"',
+    "grep -n rm db/migrations/001_create_tasks.sql",
   ])("allows %s", (command) => {
     expect(bash(command).code).toBe(0);
   });
+});
+
+it("reads a payload that starts with a BOM", () => {
+  const input = "\uFEFF" + JSON.stringify({ tool_name: "Edit", tool_input: { file_path: "db/migrations/001_create_tasks.sql" }, cwd: project });
+  const r = spawnSync("node", [HOOK], { input, env: { ...process.env, CLAUDE_PROJECT_DIR: project }, encoding: "utf8" });
+  expect(r.status).toBe(2);
 });
 
 it("fails open on an unreadable payload", () => {

@@ -14,10 +14,10 @@ const root = resolve(process.env.CLAUDE_PROJECT_DIR ?? join(dirname(fileURLToPat
 const logFile = join(root, ".claude", "hooks", "protect-migrations.log");
 const MIGRATIONS = "db/migrations/";
 const FILE_TOOLS = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
-const MUTATING =
-  /\b(rm|mv|cp|dd|truncate|tee|patch|git\s+(checkout|restore|apply))\b|\b(sed|perl)\b.*\s(-[a-zA-Z]*i\b|--in-place)|\bfind\b.*\s-(delete|exec)\b/;
-const REDIRECT_TARGET = />>?\s*['"]?([^\s'"]+)/g;
 const GLOB = /[*?[]/;
+const WRAPPERS = new Set(["sudo", "command", "nohup", "time", "env", "exec"]);
+const WRITES_ALL_OPERANDS = new Set(["rm", "rmdir", "unlink", "shred", "mv", "truncate", "tee", "patch"]);
+const IN_PLACE = /^-[A-Za-z]*i|^--in-place/; // sed/perl: -i, -Ei, -pi, -i.bak, --in-place
 
 function log(decision, detail) {
   try {
@@ -67,6 +67,51 @@ function nextMigrationNumber() {
   return String(highest + 1).padStart(3, "0");
 }
 
+// Shell-ish tokens: `>` and `>>` are their own tokens (so `x>file` works), quotes group words and are removed.
+function tokenize(part) {
+  return (part.match(/>>?|(?:[^\s"'>]|"[^"]*"|'[^']*')+/g) ?? []).map((raw) => ({
+    redirect: raw === ">" || raw === ">>",
+    text: raw.replace(/"([^"]*)"|'([^']*)'/g, (_, a, b) => a ?? b),
+  }));
+}
+
+/** The paths a command part writes to or deletes; paths it only reads or merely names are left out. */
+function writtenPaths(tokens) {
+  const written = [];
+  const args = [];
+  tokens.forEach((t, i) => {
+    if (t.redirect) {
+      if (tokens[i + 1]) written.push(tokens[i + 1].text);
+    } else if (i === 0 || !tokens[i - 1].redirect) {
+      args.push(t.text);
+    }
+  });
+  let i = 0;
+  while (i < args.length && (/^\w+=/.test(args[i]) || WRAPPERS.has(args[i]))) i++;
+  const verb = args[i];
+  const rest = args.slice(i + 1);
+  const operands = rest.filter((a) => a && !a.startsWith("-"));
+
+  if (WRITES_ALL_OPERANDS.has(verb)) written.push(...operands);
+  else if (["cp", "install", "ln"].includes(verb)) written.push(...operands.slice(-1)); // only the destination
+  else if (verb === "dd") written.push(...rest.filter((a) => a.startsWith("of=")).map((a) => a.slice(3)));
+  else if ((verb === "sed" || verb === "perl") && rest.some((a) => IN_PLACE.test(a))) written.push(...operands);
+  else if (verb === "find" && rest.some((a) => ["-delete", "-exec", "-execdir"].includes(a))) written.push(...operands);
+  else if (verb === "git") {
+    const sub = operands[0];
+    const gitOperands = operands.slice(1);
+    if (["rm", "mv", "clean", "apply"].includes(sub)) written.push(...gitOperands);
+    else if (sub === "checkout" || sub === "restore") {
+      // Restoring from HEAD only brings back what is already committed; any other source overwrites it.
+      const s = rest.findIndex((a) => a === "--source" || a === "-s");
+      const fromHead =
+        rest.includes("--source=HEAD") || (s >= 0 && rest[s + 1] === "HEAD") || (sub === "checkout" && gitOperands[0] === "HEAD");
+      if (!fromHead) written.push(...gitOperands);
+    }
+  }
+  return written;
+}
+
 /** Returns undefined when the call has nothing to do with migrations, else { detail, blocked }. */
 function check(tool, input, cwd) {
   if (FILE_TOOLS.has(tool)) {
@@ -78,32 +123,25 @@ function check(tool, input, cwd) {
   }
   if (tool === "Bash") {
     const cmd = String(input.command ?? "");
-    // Best effort, errs on the side of blocking. Each part between &&, ||, ;, | or a newline is checked on its own,
-    // following `cd`. A mutating part may only target concrete, uncommitted .sql files: a glob, the folder, `db/` or a
-    // committed migration blocks. Not parsed: interpreters (node -e, python -c) and patch files whose contents name a migration
-    // (`git apply fix.diff`); CODEOWNERS review is the backstop.
+    // Best effort, errs on the side of blocking. Each part between &&, ||, ;, | or a newline (not inside quotes) is checked
+    // on its own, following `cd`. Only paths the command writes to or deletes count, and they may only be concrete,
+    // uncommitted .sql files: a glob, the folder, `db/` or a committed migration blocks. Not parsed: interpreters
+    // (node -e, python -c) and patch files whose contents name a migration (`git apply fix.diff`); CODEOWNERS review is the backstop.
+    const masked = cmd.replace(/"[^"]*"|'[^']*'/g, (q) => q.replace(/[;|&\n]/g, "\u0001"));
     let dir = cwd;
     let touchesMigrations = false;
-    const blocked = cmd.split(/&&|\|\||[;|\n]/).some((part) => {
-      // Pad every `>` / `>>` with spaces so `echo x>db/migrations/001.sql` has the file as its own word.
-      const words = part.replace(/>+/g, " $& ").trim().split(/\s+/).map((w) => w.replace(/^['"]|['"]$/g, ""));
-      if (words[0] === "cd") {
-        if (words[1]) dir = resolve(dir, words[1]);
+    const blocked = masked.split(/&&|\|\||[;|\n]/).some((part) => {
+      const tokens = tokenize(part);
+      if (tokens[0]?.text === "cd") {
+        if (tokens[1]) dir = resolve(dir, tokens[1].text);
         return false;
       }
-      const targets = words
-        .slice(1)
-        .map((w) => w.replace(/^\d*>+&?/, ""))
-        .filter((w) => w && !w.startsWith("-"))
+      const writes = writtenPaths(tokens)
         .map((w) => toKey(dir, w))
         .filter(inMigrations);
-      const redirectsIntoMigrations = [...words.join(" ").matchAll(REDIRECT_TARGET)].some((m) =>
-        inMigrations(toKey(dir, m[1])),
-      );
-      if (!targets.length) return false;
-      touchesMigrations = true;
-      if (!(redirectsIntoMigrations || MUTATING.test(part))) return false;
-      return !targets.every((key) => key.endsWith(".sql") && !GLOB.test(key) && !isApplied(key));
+      const mentions = tokens.some((t) => t.text && !t.text.startsWith("-") && inMigrations(toKey(dir, t.text)));
+      if (writes.length || mentions) touchesMigrations = true;
+      return writes.some((key) => !(key.endsWith(".sql") && !GLOB.test(key) && !isApplied(key)));
     });
     if (!touchesMigrations) return undefined;
     return { detail: `Bash ${cmd.replace(/\s+/g, " ").slice(0, 120)}`, blocked };
@@ -113,7 +151,7 @@ function check(tool, input, cwd) {
 
 let payload;
 try {
-  payload = JSON.parse(readFileSync(0, "utf8"));
+  payload = JSON.parse(readFileSync(0, "utf8").replace(/^\uFEFF/, ""));
 } catch {
   // Unreadable payload: fail open, but leave a trace.
   log("ALLOW", "unparseable payload");

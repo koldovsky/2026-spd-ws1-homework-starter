@@ -35,7 +35,7 @@
       "Edit(./next.config.ts)",
       "Edit(./.claude/**)",
       "Edit(./.github/**)",
-      "Edit(./docs/ai/*.md)"
+      "Edit(./docs/ai/**)"
     ]
   },
   "hooks": {
