@@ -35,6 +35,7 @@ const preCases = [
   ["Bash (cd db; cd migrations; rm 001)", 2, bash(`(cd db; cd migrations; rm 001_create_tasks.sql)`)],
   ["Bash sed -i applied 002", 2, bash(`sed -i 's/40/80/' ${m}002_add_task_estimate.sql`)],
   ["Bash append into applied 002", 2, bash(`echo x >> ${m}002_add_task_estimate.sql`)],
+  ["Bash (cd migrations; echo x>>001) subshell, no space", 2, bash(`(cd db/migrations; echo x>>001_create_tasks.sql)`)],
   ["Bash cp x over applied 001", 2, bash(`cp x.sql ${m}001_create_tasks.sql`)],
   ["Bash install over applied 001", 2, bash(`install -m 644 x.sql ${m}001_create_tasks.sql`)],
   ["Bash git rm -r migrations folder", 2, bash(`git rm -r db/migrations`)],
@@ -96,12 +97,14 @@ run(post, "new untracked 003 migration", 0, anyBash, repo, session);
 writeFileSync(mig("001_create_tasks.sql"), "create table tasks (id integer primary key, x text);\n");
 run(post, "applied 001 modified (e.g. via xargs or a script)", 2, anyBash, repo, session);
 run(post, "same state again: reported once, no nagging", 0, anyBash, repo, session);
+writeFileSync(mig("001_create_tasks.sql"), "create table tasks (id integer primary key, y text);\n");
+run(post, "second, different edit to applied 001", 2, anyBash, repo, session);
 git("restore", "--source=HEAD", "--staged", "--worktree", "--", "db/migrations/001_create_tasks.sql");
 run(post, "after git restore from HEAD", 0, anyBash, repo, session);
 rmSync(mig("001_create_tasks.sql"));
 run(post, "applied 001 deleted", 2, anyBash, repo, session);
 
 rmSync(tmp, { recursive: true, force: true });
-const total = preCases.length + 6;
+const total = preCases.length + 7;
 console.log(failed ? `\n${failed} of ${total} case(s) failed` : `\nall ${total} cases passed`);
 process.exit(failed ? 1 : 0);

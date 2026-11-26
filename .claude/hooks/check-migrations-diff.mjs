@@ -38,12 +38,21 @@ const changed = out
   .map(([status, path]) => `${status[0]} ${path}`)
   .sort();
 
+/** Content hash of the file on disk, so a second, different edit to the same migration counts as a new state. */
+function blob(path) {
+  try {
+    return execFileSync("git", ["hash-object", "--", path], { cwd: projectDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  } catch {
+    return "deleted";
+  }
+}
+
 const stateFile = join(tmpdir(), `claude-migrations-${session}.txt`);
 let previous = "";
 try {
   previous = readFileSync(stateFile, "utf8");
 } catch {}
-const signature = changed.join("\n");
+const signature = changed.map((c) => `${c} ${blob(c.slice(2))}`).join("\n");
 try {
   writeFileSync(stateFile, signature);
 } catch {}

@@ -155,7 +155,8 @@ for (const seg of blanked.split(/&&|\|\||;|\n|\|/)) {
   }
 
   // Redirection / tee INTO a migration, whatever the command (reading and redirecting elsewhere is fine).
-  for (const m of seg.matchAll(/(>{1,2}|\btee(\s+-a)?)\s*["']?([^\s"'|;&<>]+)/gi)) {
+  // Brackets are excluded from the target so `(cd db/migrations; echo x>>001_x.sql)` captures `001_x.sql`.
+  for (const m of seg.matchAll(/(>{1,2}|\btee(\s+-a)?)\s*["']?([^\s"'|;&<>(){}]+)/gi)) {
     if (m[3] !== "&1" && m[3] !== "&2") guard(keyOf(m[3], vcwd), "shell redirect writes an applied migration");
   }
 

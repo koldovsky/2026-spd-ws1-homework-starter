@@ -50,6 +50,11 @@ LASTEXITCODE=2
 Version 2 of the hooks. A harness review found 6 bypasses and 2 false positives in version 1, and every one is now
 a case below. While writing this file I hit a third false positive: a `node - <<'EOF'` heredoc whose body
 *mentioned* migration paths was blocked. Heredoc bodies are now treated as data, and that command is a case too.
+The PR review (2026-11-25) found two more misses, now fixed and listed below:
+- PreToolUse: a redirect with no space inside a subshell, `(cd db/migrations; echo x>>001_…)`, got through.
+- PostToolUse: a second, *different* edit to an already-reported migration wasn't reported, because the hook
+  remembered only path and status. It now also stores a content hash.
+
 PostToolUse cases run in a throwaway git repo.
 
 ```text
@@ -65,6 +70,7 @@ PASS  exit=2 (want 2)  Bash cd migrations && rm 001
 PASS  exit=2 (want 2)  Bash (cd db; cd migrations; rm 001)
 PASS  exit=2 (want 2)  Bash sed -i applied 002
 PASS  exit=2 (want 2)  Bash append into applied 002
+PASS  exit=2 (want 2)  Bash (cd migrations; echo x>>001) subshell, no space
 PASS  exit=2 (want 2)  Bash cp x over applied 001
 PASS  exit=2 (want 2)  Bash install over applied 001
 PASS  exit=2 (want 2)  Bash git rm -r migrations folder
@@ -94,10 +100,11 @@ PASS  exit=0 (want 0)  clean tree
 PASS  exit=0 (want 0)  new untracked 003 migration
 PASS  exit=2 (want 2)  applied 001 modified (e.g. via xargs or a script)
 PASS  exit=0 (want 0)  same state again: reported once, no nagging
+PASS  exit=2 (want 2)  second, different edit to applied 001
 PASS  exit=0 (want 0)  after git restore from HEAD
 PASS  exit=2 (want 2)  applied 001 deleted
 
-all 40 cases passed
+all 42 cases passed
 ```
 
 ## 4. Log — `.claude/hooks/protect-migrations.log` (git-ignored; excerpt)
