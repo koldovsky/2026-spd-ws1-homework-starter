@@ -1,0 +1,7 @@
+# owner: @vitalii-liashenko · why: harness files change how agents behave for the whole team, so one named owner must approve each change · review-by: 2027-02-23
+# Changes to these paths need an approval from a code owner (see docs/ai/team-agreement.md, section 4).
+
+AGENTS.md        @vitalii-liashenko
+/.claude/        @vitalii-liashenko
+/docs/ai/        @vitalii-liashenko
+/.github/CODEOWNERS @vitalii-liashenko

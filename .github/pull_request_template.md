@@ -1,6 +1,6 @@
 ## Participant
 
-- **First and last name (required):**
+- **First and last name (required):** 
 - GitHub handle:
 
 ## What I built
