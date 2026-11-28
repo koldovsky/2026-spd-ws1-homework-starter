@@ -1,0 +1,6 @@
+# Harness files: changes need review from the harness owner. See docs/ai/team-agreement.md.
+/AGENTS.md              @IgorPetr
+/.claude/               @IgorPetr
+/docs/ai/               @IgorPetr
+/.github/CODEOWNERS     @IgorPetr
+/db/migrations/         @IgorPetr
