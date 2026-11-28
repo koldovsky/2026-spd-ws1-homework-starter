@@ -1,0 +1,54 @@
+{
+  "//": "owner: @Bondarenko199 · why: enforce migration immutability (hook) and guard the riskiest agent actions (deny/ask) · review-by: 2027-02-22",
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/*.pem)",
+      "Bash(sed -i*migrations*)",
+      "Bash(npm run db:reset)",
+      "Bash(npm run db:reset *)",
+      "Bash(node *db-reset.mjs*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout -- db/migrations/*)",
+      "Bash(gh pr merge*)",
+      "WebFetch"
+    ],
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm run typecheck)",
+      "Bash(ls db/migrations)",
+      "Read(docs/**)",
+      "Read(db/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-migrations.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/detect-migration-diff.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

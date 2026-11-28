@@ -1,0 +1,9 @@
+# owner: @Bondarenko199 · why: the agent harness is governed config — changes to it need explicit human review, not silent agent edits · review-by: 2027-02-22
+# Solo repo: @Bondarenko199 owns everything, with the harness files pinned explicitly so review intent is visible.
+*                                       @Bondarenko199
+
+# Agent harness — the governed part
+/AGENTS.md                              @Bondarenko199
+/.claude/                               @Bondarenko199
+/docs/ai/                               @Bondarenko199
+/.github/CODEOWNERS                     @Bondarenko199
