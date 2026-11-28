@@ -12,7 +12,9 @@
     "start": "next start --port 3000",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "db:reset": "node scripts/db-reset.mjs"
+    "db:reset": "node scripts/db-reset.mjs",
+    "hook:test": "node --test .claude/hooks/*.test.mjs",
+    "harness:check": "node scripts/check-review-by.mjs"
   },
   "dependencies": {
     "next": "16.4.6",

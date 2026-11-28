@@ -10,3 +10,6 @@ data/*.db-*
 CLAUDE.local.md
 .claude/settings.local.json
 .claude/hooks/*.log
+
+# A/B raw transcripts: large, contain machine paths
+docs/ai/ab/runs/*/transcript.jsonl

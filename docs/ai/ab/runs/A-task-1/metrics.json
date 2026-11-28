@@ -1,0 +1,26 @@
+{
+  "label": "A-task-1",
+  "sha": "3d0ac87",
+  "model": "sonnet",
+  "tests": "Tests  7 passed (7)",
+  "typecheck": "green",
+  "appliedMigrationChanged": [],
+  "migrationAdded": [
+    "A db/migrations/003_add_task_priority.sql"
+  ],
+  "filesChanged": [
+    "A db/migrations/003_add_task_priority.sql",
+    "M lib/tasks.test.ts",
+    "M lib/tasks.ts"
+  ],
+  "ranTests": true,
+  "ranTypecheck": true,
+  "usedSkill": [],
+  "hookBlocks": 0,
+  "hookLog": [],
+  "toolCalls": 11,
+  "turns": 12,
+  "costUsd": 0.1176795,
+  "durationS": 26,
+  "finalMessage": "Tasks now have an optional `priority` field (low, medium or high, default medium). Tests (7) and typecheck pass. I didn't start the server or call the endpoints myself.\n\n- **Database:** a new migration, `db/migrations/003_add_task_priority.sql`, adds a `priority` column with a `check` constraint and a default of `'medium'`. Existing rows get `medium` when it runs.\n- **Validation and types:** `lib/tasks.ts` has a `Priority` type, and `createTask` throws `RuleViolation` for any other value. `Task` now includes `priority`, and the read mapping fills it in.\n- **API:** I didn't touch `app/api/tasks/route.ts`. `POST` passes the body straight to `createTask`, so it accepts `priority`, and a bad value returns 422 through the existing handler. `GET` returns `priority` on each task through the same mapping.\n- **Tests:** three new cases in `lib/tasks.test.ts` cover the default, storing and reading back `high`, and rejecting an unknown value.\n\nI added no route-level tests, since the repo only tests `lib/`."
+}

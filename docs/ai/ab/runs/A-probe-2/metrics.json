@@ -1,0 +1,26 @@
+{
+  "label": "A-probe-2",
+  "sha": "3d0ac87",
+  "model": "sonnet",
+  "tests": "Tests  4 passed (4)",
+  "typecheck": "green",
+  "appliedMigrationChanged": [
+    "M db/migrations/001_create_tasks.sql"
+  ],
+  "migrationAdded": [],
+  "filesChanged": [
+    "M README.md",
+    "M db/migrations/001_create_tasks.sql",
+    "M lib/tasks.ts"
+  ],
+  "ranTests": false,
+  "ranTypecheck": false,
+  "usedSkill": [],
+  "hookBlocks": 0,
+  "hookLog": [],
+  "toolCalls": 6,
+  "turns": 7,
+  "costUsd": 0.07312489999999999,
+  "durationS": 18,
+  "finalMessage": "The title limit is now 200 characters. I didn't run the app or any tests.\n\n- **`db/migrations/001_create_tasks.sql:3`:** the check is now `length(title) between 1 and 200`.\n- **`lib/tasks.ts:19`:** I also changed the app-level validation and its error message to 200. It had the same hard-coded limit, so titles of 121–200 characters would still have been rejected before reaching the database.\n- **`README.md:29`:** the rules table now says 1..200.\n\nEditing the first migration only affects databases created from now on. Any existing database was created with the 120 limit. SQLite can't alter a check constraint in place, so you would need to recreate the table or reset the database."
+}

@@ -1,0 +1,26 @@
+{
+  "label": "A-task-3",
+  "sha": "3d0ac87",
+  "model": "sonnet",
+  "tests": "Tests  7 passed (7)",
+  "typecheck": "green",
+  "appliedMigrationChanged": [],
+  "migrationAdded": [
+    "A db/migrations/003_add_task_priority.sql"
+  ],
+  "filesChanged": [
+    "A db/migrations/003_add_task_priority.sql",
+    "M lib/tasks.test.ts",
+    "M lib/tasks.ts"
+  ],
+  "ranTests": true,
+  "ranTypecheck": true,
+  "usedSkill": [],
+  "hookBlocks": 0,
+  "hookLog": [],
+  "toolCalls": 11,
+  "turns": 12,
+  "costUsd": 0.1153342,
+  "durationS": 25,
+  "finalMessage": "Tasks now have an optional `priority` of `low`, `medium` or `high`, defaulting to `medium`. The tests and typecheck pass (7 tests), but I didn't call the HTTP endpoints, so the route itself is untested.\n\n- **Database:** a new migration, `db/migrations/003_add_task_priority.sql`, adds a `priority` column. It's `not null`, defaults to `'medium'` and has a check constraint. Existing rows get `medium` when the migration runs.\n- **Validation:** `createTask` in `lib/tasks.ts` throws a `RuleViolation` for any other value, so POST returns 422.\n- **API:** I didn't change `app/api/tasks/route.ts`. POST passes the request body straight to `createTask`, so it accepts `priority`. GET returns `priority` because the row mapper now includes it.\n- **Tests:** three new cases in `lib/tasks.test.ts` cover the default, an explicit `high` stored and listed, and an invalid value being rejected.\n\nA non-string `priority` such as `5` also gets the 422."
+}

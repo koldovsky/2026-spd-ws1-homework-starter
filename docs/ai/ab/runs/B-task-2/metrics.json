@@ -1,0 +1,28 @@
+{
+  "label": "B-task-2",
+  "sha": "89e0e54",
+  "model": "sonnet",
+  "tests": "Tests  8 passed (8)",
+  "typecheck": "green",
+  "appliedMigrationChanged": [],
+  "migrationAdded": [
+    "A db/migrations/003_add_task_priority.sql"
+  ],
+  "filesChanged": [
+    "A db/migrations/003_add_task_priority.sql",
+    "M lib/tasks.test.ts",
+    "M lib/tasks.ts"
+  ],
+  "ranTests": true,
+  "ranTypecheck": true,
+  "usedSkill": [
+    "add-migration"
+  ],
+  "hookBlocks": 0,
+  "hookLog": [],
+  "toolCalls": 15,
+  "turns": 17,
+  "costUsd": 0.14935580000000004,
+  "durationS": 36,
+  "finalMessage": "Tasks now have an optional `priority` (low, medium or high, default medium). `npm test` passes (8 tests) and `npm run typecheck` is clean. `git status` shows only the new migration file, `?? db/migrations/003_add_task_priority.sql`.\n\n- **Database:** the new migration `db/migrations/003_add_task_priority.sql` adds a `priority` column. It is `not null`, defaults to `'medium'`, and has a `check` limiting it to low, medium or high.\n- **Validation:** in `lib/tasks.ts`, `createTask` accepts `priority` and rejects anything else with a `RuleViolation`, so the API returns 422. That includes `null` and non-string values.\n- **API:** I didn't change `app/api/tasks/route.ts`. POST already passes the body to `createTask`, and GET returns the full task, which now includes `priority`.\n- **New tests in `lib/tasks.test.ts`:**\n  - `defaults priority to medium`\n  - `stores each valid priority and returns it from listTasks`\n  - `rejects an unknown or mistyped priority`\n  - `has a DB check on priority matching the app rule`\n\nI didn't add route-level tests. The team agreement notes there's no route-test helper yet. The 422 mapping for `priority` therefore rests on the existing `RuleViolation` handling in the route and a reviewer check. Say if you want me to build that helper.\n\nIf you've run `npm run dev` before, `npm run db:reset` rebuilds the local DB so it picks up the new column. It deletes local data, so I haven't run it."
+}

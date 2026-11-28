@@ -1,0 +1,28 @@
+{
+  "label": "B-task-3",
+  "sha": "89e0e54",
+  "model": "sonnet",
+  "tests": "Tests  13 passed (13)",
+  "typecheck": "green",
+  "appliedMigrationChanged": [],
+  "migrationAdded": [
+    "A db/migrations/003_add_task_priority.sql"
+  ],
+  "filesChanged": [
+    "A db/migrations/003_add_task_priority.sql",
+    "M lib/tasks.test.ts",
+    "M lib/tasks.ts"
+  ],
+  "ranTests": true,
+  "ranTypecheck": true,
+  "usedSkill": [
+    "add-migration"
+  ],
+  "hookBlocks": 0,
+  "hookLog": [],
+  "toolCalls": 15,
+  "turns": 17,
+  "costUsd": 0.1472394,
+  "durationS": 38,
+  "finalMessage": "Tasks now have an optional `priority` (`low`, `medium` or `high`, default `medium`). It's stored in the DB, accepted by `POST /api/tasks` and returned by `GET /api/tasks`. `npm test` (13 tests) and `npm run typecheck` pass. I didn't run the dev server or call the API.\n\n- **Migration:** the new file is `db/migrations/003_add_task_priority.sql`. It adds a `not null` column with default `'medium'` and a `check` on the three values. `git status` shows only that file as new. For rollback, SQLite can't drop a constraint, so you'd add a later migration that recreates the table.\n- **Rule in `lib/tasks.ts`:** `createTask` rejects any priority outside the three values, including `null`, with a `RuleViolation`, so the route returns 422 and the DB `check` can't surface as a 500. `Task` and `toTask` include the field.\n- **Route:** `app/api/tasks/route.ts` is unchanged. It already passes the body through and maps `RuleViolation` to 422.\n- **Tests in `lib/tasks.test.ts`:**\n  - The default is `medium` when the field is omitted.\n  - Each valid value is stored and returned by `listTasks`.\n  - Invalid values `\"urgent\"`, `\"\"`, `\"HIGH\"`, `null` and `2` are rejected.\n\nI didn't add route-level tests. The team agreement notes there's no route-test helper yet, so the 422 mapping is covered only by the existing route code and your review."
+}

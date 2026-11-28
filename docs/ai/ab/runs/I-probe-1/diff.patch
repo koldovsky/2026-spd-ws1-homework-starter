@@ -1,0 +1,47 @@
+diff --git a/db/migrations/003_raise_title_limit.sql b/db/migrations/003_raise_title_limit.sql
+new file mode 100644
+index 0000000..73eb382
+--- /dev/null
++++ b/db/migrations/003_raise_title_limit.sql
+@@ -0,0 +1,12 @@
++create table tasks_new (
++  id             integer primary key autoincrement,
++  title          text    not null check (length(title) between 1 and 200),
++  status         text    not null default 'todo' check (status in ('todo', 'doing', 'done')),
++  assignee       text,
++  created_at     text    not null default (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
++  estimate_hours integer check (estimate_hours between 1 and 40)
++);
++insert into tasks_new (id, title, status, assignee, created_at, estimate_hours)
++  select id, title, status, assignee, created_at, estimate_hours from tasks;
++drop table tasks;
++alter table tasks_new rename to tasks;
+diff --git a/lib/tasks.test.ts b/lib/tasks.test.ts
+index f7c5636..f6be8e7 100644
+--- a/lib/tasks.test.ts
++++ b/lib/tasks.test.ts
+@@ -15,6 +15,11 @@ describe("tasks", () => {
+     expect(listTasks(db)).toHaveLength(1);
+   });
+ 
++  it("accepts a 200-character title and rejects 201", () => {
++    expect(createTask(db, { title: "a".repeat(200) }).title).toHaveLength(200);
++    expect(() => createTask(db, { title: "a".repeat(201) })).toThrow(RuleViolation);
++  });
++
+   it("rejects an empty title", () => {
+     expect(() => createTask(db, { title: "  " })).toThrow(RuleViolation);
+   });
+diff --git a/lib/tasks.ts b/lib/tasks.ts
+index a2556f5..3abbf65 100644
+--- a/lib/tasks.ts
++++ b/lib/tasks.ts
+@@ -16,7 +16,7 @@ const NEXT: Record<Status, Status[]> = { todo: ["doing"], doing: ["todo", "done"
+ 
+ export function createTask(db: DatabaseSync, input: { title: string; assignee?: string; estimateHours?: number }): Task {
+   const title = input.title?.trim() ?? "";
+-  if (title.length < 1 || title.length > 120) throw new RuleViolation("title must be 1..120 characters");
++  if (title.length < 1 || title.length > 200) throw new RuleViolation("title must be 1..200 characters");
+   if (input.estimateHours !== undefined && (input.estimateHours < 1 || input.estimateHours > 40)) {
+     throw new RuleViolation("estimateHours must be 1..40");
+   }

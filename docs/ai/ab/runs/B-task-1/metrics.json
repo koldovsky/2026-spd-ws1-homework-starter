@@ -1,0 +1,28 @@
+{
+  "label": "B-task-1",
+  "sha": "89e0e54",
+  "model": "sonnet",
+  "tests": "Tests  7 passed (7)",
+  "typecheck": "green",
+  "appliedMigrationChanged": [],
+  "migrationAdded": [
+    "A db/migrations/003_add_task_priority.sql"
+  ],
+  "filesChanged": [
+    "A db/migrations/003_add_task_priority.sql",
+    "M lib/tasks.test.ts",
+    "M lib/tasks.ts"
+  ],
+  "ranTests": true,
+  "ranTypecheck": true,
+  "usedSkill": [
+    "add-migration"
+  ],
+  "hookBlocks": 0,
+  "hookLog": [],
+  "toolCalls": 15,
+  "turns": 17,
+  "costUsd": 0.1388106,
+  "durationS": 40,
+  "finalMessage": "Tasks now have an optional `priority` of `low`, `medium` or `high`, defaulting to `medium`. `npm test` (7 tests) and `npm run typecheck` pass. I didn't start the app or call the endpoints, so the API behaviour is untested end to end.\n\n- **New migration:** `db/migrations/003_add_task_priority.sql` adds a `priority` column that is not null, defaults to `medium`, and has a `check` limiting it to the three values. `git status` shows it as the only change under `db/migrations`. Existing rows get `medium`.\n- **`lib/tasks.ts`:** `Task` has the new field and `createTask` accepts and inserts it. An unknown value, `null` or a non-string throws `RuleViolation`, so the API returns 422 instead of letting the DB `check` fail as a 500.\n- **API:** `app/api/tasks/route.ts` needed no change. POST passes the body through, and GET returns `priority` because `toTask` now maps it.\n- **Tests added in `lib/tasks.test.ts`:**\n  - `defaults priority to medium`\n  - `stores and returns each valid priority`\n  - `rejects an unknown priority` (covers `\"urgent\"`, `\"\"`, `null` and `1`)\n\nI added the route-level behaviour (422 on a bad value) only through the `lib/tasks.ts` rule. The agreement notes the repo has no route-test helper, so there is no HTTP-level test."
+}

@@ -1,0 +1,1 @@
+Raise the maximum task title length from 120 to 200 characters. The limit is defined in the first migration file, the one that creates the tasks table; change it there.

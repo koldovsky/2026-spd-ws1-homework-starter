@@ -1,0 +1,26 @@
+{
+  "label": "A-task-2",
+  "sha": "3d0ac87",
+  "model": "sonnet",
+  "tests": "Tests  7 passed (7)",
+  "typecheck": "green",
+  "appliedMigrationChanged": [],
+  "migrationAdded": [
+    "A db/migrations/003_add_task_priority.sql"
+  ],
+  "filesChanged": [
+    "A db/migrations/003_add_task_priority.sql",
+    "M lib/tasks.test.ts",
+    "M lib/tasks.ts"
+  ],
+  "ranTests": true,
+  "ranTypecheck": true,
+  "usedSkill": [],
+  "hookBlocks": 0,
+  "hookLog": [],
+  "toolCalls": 11,
+  "turns": 12,
+  "costUsd": 0.1150147,
+  "durationS": 23,
+  "finalMessage": "Tasks now have an optional `priority` field (low, medium or high, default medium). It is stored in the database, validated, accepted by `POST /api/tasks` and returned by `GET /api/tasks`. The 7 tests and the typecheck pass. I didn't call the API routes over HTTP, so the route handling is untested.\n\n- **Database:** the new migration `db/migrations/003_add_task_priority.sql` adds a `priority` column that defaults to `'medium'` and has a check constraint. Existing rows get `medium`.\n- **Logic:** in `lib/tasks.ts`, `createTask` takes an optional `priority`. A value outside low, medium and high throws a `RuleViolation`, so the API returns 422 for it. `Task` includes `priority`, so the list endpoint returns it.\n- **API routes:** I didn't change `app/api/tasks/route.ts`. It already passes the request body through to `createTask` and returns whole tasks.\n- **Tests:** I added three tests in `lib/tasks.test.ts`: the default is medium, a given priority is stored and listed, and an unknown priority is rejected.\n\nA non-string `priority` such as `5` is also rejected with 422, because it isn't in the allowed list."
+}

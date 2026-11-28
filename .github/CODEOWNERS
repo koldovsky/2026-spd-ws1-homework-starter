@@ -1,0 +1,16 @@
+# owner: @evgenyadev · why: harness changes alter how every agent session behaves, so they need an owner's approval · review-by: 2027-02-20
+# Last matching pattern wins. Paths are from the repo root. Unlisted paths have no required reviewer.
+
+# Harness: instructions, enforcement, process (team-agreement.md §3)
+/AGENTS.md                    @evgenyadev
+/.claude/                     @evgenyadev
+/docs/ai/                     @evgenyadev
+/scripts/check-review-by.mjs  @evgenyadev
+/next.config.ts               @evgenyadev
+/.github/                     @evgenyadev
+
+# Change types at L1/L2 in the autonomy matrix: a human owner signs off
+/db/migrations/               @evgenyadev
+/lib/tasks.ts                 @evgenyadev
+/package.json                 @evgenyadev
+/package-lock.json            @evgenyadev

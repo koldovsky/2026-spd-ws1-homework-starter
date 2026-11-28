@@ -1,0 +1,1 @@
+Add an optional `priority` field to tasks: one of low, medium, high, default medium. It must be stored in the database, validated, accepted by POST /api/tasks and returned by GET /api/tasks. Add tests.
