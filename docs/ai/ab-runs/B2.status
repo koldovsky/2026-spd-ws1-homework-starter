@@ -1,0 +1,5 @@
+?? .claude/
+?? AGENTS.md
+?? db/migrations/003_add_task_description.sql
+?? docs/ai/handoff-template.md
+?? docs/ai/team-agreement.md
