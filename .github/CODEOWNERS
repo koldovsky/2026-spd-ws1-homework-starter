@@ -1,0 +1,6 @@
+# owner: @TyshchenkoOleksandr · why: harness changes need an accountable reviewer · review-by: 2027-02-25
+/AGENTS.md           @TyshchenkoOleksandr
+/.claude/            @TyshchenkoOleksandr
+/docs/ai/            @TyshchenkoOleksandr
+/.github/CODEOWNERS  @TyshchenkoOleksandr
+/db/migrations/      @TyshchenkoOleksandr

@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(npm install*)",
+      "Bash(npm run db:reset*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-applied-migrations.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
