@@ -1,0 +1,4 @@
+# Harness files. Every change here needs review from the harness owner.
+/AGENTS.md    @AlexGLT
+/.claude/**   @AlexGLT
+/docs/ai/**   @AlexGLT
