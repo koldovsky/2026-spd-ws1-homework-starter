@@ -1,0 +1,9 @@
+# owner: @vvedula-svg · why: make harness changes accountable · review-by: 2027-03-25
+/AGENTS.md @vvedula-svg
+/.claude/ @vvedula-svg
+/docs/ai/ @vvedula-svg
+/scripts/migration-guard.test.mjs @vvedula-svg
+/.github/CODEOWNERS @vvedula-svg
+/.github/workflows/ @vvedula-svg
+/.github/pull_request_template.md @vvedula-svg
+/db/migrations/ @vvedula-svg
