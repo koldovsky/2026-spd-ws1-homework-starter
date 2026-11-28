@@ -1,0 +1,8 @@
+Test 1: Edit existing migration
+BLOCKED: Cannot modify tracked migration: db/migrations/001_create_tasks.sql. Add a new numbered migration instead.
+Exit code: 2
+Test 2: Bash modification
+BLOCKED: Bash command may modify tracked migration: db/migrations/001_create_tasks.sql
+Exit code: 2
+Test 3: New migration
+Exit code: 0
