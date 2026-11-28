@@ -1,0 +1,13 @@
+# owner: @artem-tkachenko · why: harness changes and new migrations need the owner's review (docs/ai/team-agreement.md) · review-by: 2027-05-23
+# GitHub requests a review from the owner of every matching path. Last matching pattern wins.
+
+# Agent harness
+/AGENTS.md            @artem-tkachenko
+/.claude/             @artem-tkachenko
+/docs/ai/             @artem-tkachenko
+
+# Only the owner approves migrations (autonomy matrix: "New migration")
+/db/migrations/       @artem-tkachenko
+
+# This file itself, so nobody removes an owner without review
+/.github/CODEOWNERS   @artem-tkachenko

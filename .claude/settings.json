@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm test *)",
+      "Bash(npm run typecheck)",
+      "Bash(git fetch *)",
+      "Bash(git fetch)",
+      "Read(./.env.example)"
+    ],
+    "ask": [
+      "Bash(npm run dev *)",
+      "Bash(npm run dev)",
+      "Bash(npm run build *)",
+      "Bash(npm run build)",
+      "Bash(npm start *)",
+      "Bash(npm start)",
+      "Bash(npm install)",
+      "Bash(npm install *)",
+      "Bash(git pull *)",
+      "Bash(git pull)",
+      "Bash(git reset *)",
+      "Bash(git clean *)",
+      "Bash(git restore *)",
+      "Bash(git checkout -- *)",
+      "Bash(git stash drop *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git push)",
+      "Edit(./db/migrations/**)",
+      "Write(./db/migrations/**)",
+      "MultiEdit(./db/migrations/**)",
+      "Edit(./README.md)",
+      "Write(./README.md)",
+      "MultiEdit(./README.md)",
+      "Edit(./docs/**)",
+      "Write(./docs/**)",
+      "MultiEdit(./docs/**)",
+      "Edit(./app/**)",
+      "Write(./app/**)",
+      "MultiEdit(./app/**)",
+      "Edit(./lib/**)",
+      "Write(./lib/**)",
+      "MultiEdit(./lib/**)",
+      "Edit(./AGENTS.md)",
+      "Write(./AGENTS.md)",
+      "MultiEdit(./AGENTS.md)",
+      "Edit(./.claude/**)",
+      "Write(./.claude/**)",
+      "MultiEdit(./.claude/**)",
+      "Edit(./docs/ai/**)",
+      "Write(./docs/ai/**)",
+      "MultiEdit(./docs/ai/**)",
+      "Edit(./package.json)",
+      "Write(./package.json)",
+      "MultiEdit(./package.json)",
+      "Edit(./package-lock.json)",
+      "Write(./package-lock.json)",
+      "MultiEdit(./package-lock.json)",
+      "Edit(./lib/db.ts)",
+      "Write(./lib/db.ts)",
+      "MultiEdit(./lib/db.ts)",
+      "Edit(./scripts/**)",
+      "Write(./scripts/**)",
+      "MultiEdit(./scripts/**)",
+      "Edit(./.gitignore)",
+      "Write(./.gitignore)",
+      "MultiEdit(./.gitignore)",
+      "Edit(./.github/**)",
+      "Write(./.github/**)",
+      "MultiEdit(./.github/**)",
+      "Edit(./next.config.ts)",
+      "Write(./next.config.ts)",
+      "MultiEdit(./next.config.ts)"
+    ],
+    "deny": [
+      "Bash(npm run db:reset *)",
+      "Bash(npm run db:reset)",
+      "Bash(node scripts/db-reset.mjs *)",
+      "Bash(node scripts/db-reset.mjs)",
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
+      "Read(./.env.development)",
+      "Read(./.env.production)",
+      "Read(./.env.test)",
+      "Bash(rm -f .claude/hooks/*.log)",
+      "Bash(rm -f .claude/hooks/*.log *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-migrations.mjs\""
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Grep|Edit|MultiEdit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-secrets.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

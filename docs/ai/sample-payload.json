@@ -1,0 +1,8 @@
+{
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "db/migrations/001_create_tasks.sql",
+    "old_string": "title text not null",
+    "new_string": "title text"
+  }
+}
