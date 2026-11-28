@@ -1,0 +1,21 @@
+# owner: @skindyk · why: harness, schema and dependency changes change how every agent session behaves; they need an owner's review · review-by: 2027-03-01
+# Order matters: the last matching pattern wins. Only enforced with branch protection
+# "Require review from Code Owners" on main (see docs/ai/team-agreement.md §3).
+
+# Agent harness
+/AGENTS.md              @skindyk
+/.claude/               @skindyk
+/docs/ai/               @skindyk
+
+# CI, PR templates, this file
+/.github/               @skindyk
+
+# Schema: the hooks protect applied migrations; new ones still need a human (L2).
+# lib/db.ts is the migration runner the hooks' premise depends on.
+/db/migrations/         @skindyk
+/lib/db.ts              @skindyk
+
+# Dependencies (L1) and framework config (agentRules: false keeps AGENTS.md team-owned)
+/package.json           @skindyk
+/package-lock.json      @skindyk
+/next.config.ts         @skindyk
