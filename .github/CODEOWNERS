@@ -1,0 +1,8 @@
+# owner: @Kurkov1990 · why: harness changes alter agent behaviour for everyone, so they need an owner's review · review-by: 2027-03-23
+# Agent harness
+/AGENTS.md            @Kurkov1990
+/.claude/             @Kurkov1990
+/docs/ai/             @Kurkov1990
+/.github/CODEOWNERS   @Kurkov1990
+# Applied schema history — same owners as the hook that protects it
+/db/migrations/       @Kurkov1990
