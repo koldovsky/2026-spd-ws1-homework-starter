@@ -1,0 +1,12 @@
+diff --git a/db/migrations/001_create_tasks.sql b/db/migrations/001_create_tasks.sql
+index 6b7a5a9..b192b21 100644
+--- a/db/migrations/001_create_tasks.sql
++++ b/db/migrations/001_create_tasks.sql
+@@ -1,6 +1,6 @@
+ create table tasks (
+   id         integer primary key autoincrement,
+-  title      text    not null check (length(title) between 1 and 120),
++  title      text    not null check (length(title) between 1 and 200),
+   status     text    not null default 'todo' check (status in ('todo', 'doing', 'done')),
+   assignee   text,
+   created_at text    not null default (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))

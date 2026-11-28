@@ -1,0 +1,52 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/protect-migrations.mjs"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-migrations-diff.mjs"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(*.env*)",
+      "Bash(rm -r*)",
+      "Bash(rm -R*)",
+      "Bash(rm -f*r*)",
+      "Bash(rm -f*R*)",
+      "Bash(rm * -r*)",
+      "Bash(rm * -R*)",
+      "Bash(rm *--recursive*)",
+      "Bash(git push *--force*)",
+      "Bash(git push *-f*)",
+      "Bash(git push *+*)",
+      "Bash(git * push *--force*)",
+      "Bash(git * push *-f*)",
+      "Bash(git * push *+*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git * push*)",
+      "Bash(npm install:*)",
+      "Bash(npm run db:reset:*)"
+    ]
+  }
+}

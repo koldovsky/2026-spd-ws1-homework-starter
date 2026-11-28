@@ -1,0 +1,5 @@
+# Harness files: changes need approval from the harness owner (see docs/ai/team-agreement.md, section 3-4).
+/AGENTS.md          @e5d3e1
+/.claude/           @e5d3e1
+/docs/ai/           @e5d3e1
+/.github/CODEOWNERS @e5d3e1
