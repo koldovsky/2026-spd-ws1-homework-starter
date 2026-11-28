@@ -1,0 +1,5 @@
+# owner: @garnaga · why: harness files govern agent behavior, changes need a human owner · review-by: 2027-02-25
+/AGENTS.md @garnaga
+/.claude/ @garnaga
+/docs/ai/ @garnaga
+* @garnaga

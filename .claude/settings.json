@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(secrets/**)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(curl * | sh)",
+      "Bash(curl * | bash)"
+    ],
+    "ask": [
+      "Bash(npm publish:*)",
+      "Bash(npm rm:*)",
+      "Bash(git push fork main:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/protect-migrations.mjs" }
+        ]
+      }
+    ]
+  }
+}

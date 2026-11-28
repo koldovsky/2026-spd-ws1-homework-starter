@@ -1,0 +1,5 @@
+ README.md         |  2 +-
+ lib/tasks.test.ts | 14 +++++++++
+ lib/tasks.ts      |  4 +--
+ package-lock.json | 90 -------------------------------------------------------
+ 4 files changed, 17 insertions(+), 93 deletions(-)

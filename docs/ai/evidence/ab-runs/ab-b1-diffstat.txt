@@ -1,0 +1,4 @@
+ README.md         |  2 +-
+ lib/tasks.test.ts | 22 ++++++++++++++++++++++
+ lib/tasks.ts      |  4 ++--
+ 3 files changed, 25 insertions(+), 3 deletions(-)
